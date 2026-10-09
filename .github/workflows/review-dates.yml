@@ -1,0 +1,34 @@
+name: Review dates
+
+on:
+  schedule:
+    - cron: "0 20 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  overdue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - run: python tools/doctrace.py --root docs --overdue overdue.md || true
+      # One tracking issue, edited in place, rather than one issue per page.
+      - name: Update tracking issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create review-due --color FBCA04 --description "Doctrine items past review date" 2>/dev/null || true
+          num=$(gh issue list --label review-due --state open --json number --jq '.[0].number // empty')
+          if [ -s overdue.md ]; then
+            if [ -n "$num" ]; then gh issue edit "$num" --body-file overdue.md
+            else gh issue create --title "Doctrine items due for review" --label review-due --body-file overdue.md; fi
+          elif [ -n "$num" ]; then
+            gh issue close "$num" --comment "All items are within their review dates."
+          fi

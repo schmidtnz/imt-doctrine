@@ -1,0 +1,32 @@
+name: PR preview
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency: preview-${{ github.ref }}
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        if: github.event.action != 'closed'
+        with:
+          python-version: "3.12"
+          cache: pip
+      - if: github.event.action != 'closed'
+        run: |
+          pip install -r requirements.txt
+          sphinx-build -b html docs docs/_build/html
+      # Publishes to gh-pages/pr-preview/pr-N/ and comments the link; removes it when the PR closes.
+      - uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: docs/_build/html

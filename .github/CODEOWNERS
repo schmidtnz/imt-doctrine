@@ -1,0 +1,14 @@
+# Doctrine tier: a doctrine owner must approve. Replace @schmidtnz with the
+# review group's team (e.g. @org/doctrine-review) once the repo moves to an org.
+/docs/part-1/                    @schmidtnz
+/docs/part-2/                    @schmidtnz
+/docs/part-3/3-1-concepts/       @schmidtnz
+/docs/part-3/3-2-core-operations/ @schmidtnz
+/docs/glossary.md                @schmidtnz
+/docs/_snippets/                 @schmidtnz
+/docs/conf.py                    @schmidtnz
+/docs/_ext/                      @schmidtnz
+/tools/                          @schmidtnz
+/.github/                        @schmidtnz
+
+# Guidance tier (3.3-3.6, forms, other pages): no owner, so one approval from anyone merges.

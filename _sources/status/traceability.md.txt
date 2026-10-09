@@ -1,0 +1,27 @@
+# Traceability status
+
+Generated 2026-10-09 from 11 items: 4 principles, 3 concepts, 2 guidelines, 1 processes, 1 forms.
+
+## Needs attention
+
+| Status | Item | Detail |
+|---|---|---|
+| warning | {doc}`PRN-04 Keep it simple </part-2/prn-04-simplicity>` | no concept derives from this principle yet |
+| stale | {doc}`CON-03 Safety management in search operations </part-3/3-1-concepts/con-03-safety-management>` | written against PRN-01 v1; PRN-01 is now v2 |
+| overdue | {doc}`GDL-01 Assessing urgency at initial response </part-3/3-3-guidelines/gdl-01-urgency-assessment>` | last reviewed 2025-06-30 |
+
+## Derivation tree
+
+- {doc}`PRN-01 Safety first </part-2/prn-01-safety>`, v2
+  - {doc}`CON-03 Safety management in search operations </part-3/3-1-concepts/con-03-safety-management>`, v1 (stale)
+- {doc}`PRN-02 Act with urgency </part-2/prn-02-urgency>`, v1
+  - {doc}`CON-01 Search urgency </part-3/3-1-concepts/con-01-search-urgency>`, v1
+    - {doc}`GDL-01 Assessing urgency at initial response </part-3/3-3-guidelines/gdl-01-urgency-assessment>`, v1
+- {doc}`PRN-03 Evidence-based decisions </part-2/prn-03-evidence>`, v1
+  - {doc}`CON-02 Probability of area, detection and success </part-3/3-1-concepts/con-02-probability>`, v1
+    - {doc}`GDL-02 Recording POD at the team debrief </part-3/3-3-guidelines/gdl-02-recording-pod>`, v1
+      - {doc}`PRC-01 Search period cycle </part-3/3-4-processes/prc-01-search-period-cycle>`, v1
+        - {doc}`FRM-01 Team debrief form </forms/frm-01-team-debrief>`, v1
+    - {doc}`PRC-01 Search period cycle </part-3/3-4-processes/prc-01-search-period-cycle>`, v1
+      - {doc}`FRM-01 Team debrief form </forms/frm-01-team-debrief>`, v1
+- {doc}`PRN-04 Keep it simple </part-2/prn-04-simplicity>`, v1

@@ -25,7 +25,7 @@ author = "Doctrine working group"
 release = version = _release()
 
 extensions = ["myst_parser", "sphinx.ext.githubpages", "traceability"]
-myst_enable_extensions = ["colon_fence", "deflist", "substitution"]
+myst_enable_extensions = ["colon_fence", "deflist", "substitution", "tasklist"]
 myst_heading_anchors = 3
 myst_substitutions = {
     "org": "LandSAR",

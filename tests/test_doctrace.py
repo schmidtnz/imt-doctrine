@@ -289,7 +289,7 @@ class RepoContentTests(unittest.TestCase):
         findings += doctrace.check(items, TODAY)
         self.assertEqual([f for f in findings if f.level == "error"], [])
         self.assertEqual(sorted((f.level, f.item_id) for f in findings),
-                         [("overdue", "GDL-01"), ("stale", "CON-03"), ("warning", "PRN-04")])
+                         [("overdue", "GDL-04"), ("stale", "CON-02"), ("warning", "PRN-15")])
 
 
 if __name__ == "__main__":

@@ -15,11 +15,12 @@ Principles, concepts, guidelines, processes and forms are **items**. Each item p
 
 ```yaml
 ---
-id: GDL-02
+id: GDL-05
 type: guideline
-title: Recording POD at the team debrief
-derives_from:
-  CON-02: 1        # parent ID: parent version this was written against
+title: Extended search planning phase
+derives_from:      # parent ID: parent version this was written against
+  CON-16: 1
+  CON-17: 1
 owner: doctrine-group
 last_reviewed: 2026-10-01
 ---
@@ -42,9 +43,19 @@ When an item's meaning changes, its author bumps `version`. Every child written 
 
 ## Say it once
 
-- Repeated text, such as the {term}`POD` scale, lives in one snippet file and is included wherever it's needed.
+- Repeated text, such as the {term}`POD` scale, lives in one snippet file and is included on every page that needs it (five pages here).
 - Acronyms are defined once in the {doc}`glossary`.
 - The organisation name comes from one setting, so it reads "{{ org }}" everywhere.
+
+## What the demo content shows
+
+Text is condensed from draft v0.1, numbered as in the draft. Author notes, names and statistics still being verified are left out. Three states are deliberate, so the {doc}`status/traceability` page has something to show:
+
+| State | Item | Why |
+|---|---|---|
+| Stale | {doc}`part-3/3-1-concepts/con-02-safety` | Written against PRN-13 v1; PRN-13 is now v2 |
+| Coverage gap | {doc}`part-2/prn-15-iwi` | No concept derives from it yet |
+| Overdue review | {doc}`part-3/3-3-guidelines/gdl-04-rescue` | Last reviewed more than a year ago |
 
 ## Releases
 

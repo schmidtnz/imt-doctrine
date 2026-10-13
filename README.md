@@ -1,6 +1,6 @@
 # IMT Doctrine (demonstration)
 
-A working demonstration of writing, reviewing and publishing land SAR IMT doctrine from Git. The structure follows the draft doctrine (Parts 1–3, forms); the text is short illustrative placeholder content, not agreed doctrine.
+A working demonstration of writing, reviewing and publishing land SAR IMT doctrine from Git. The structure and numbering follow draft v0.1 (Parts 1–3, forms). The text is condensed from the draft for illustration and is not agreed doctrine.
 
 ## What it shows
 
@@ -13,19 +13,19 @@ A working demonstration of writing, reviewing and publishing land SAR IMT doctri
 | Versioned releases with PDF and zipped HTML | `.github/workflows/release.yml` |
 | PR previews, link checking, monthly review-date issue | `.github/workflows/` |
 
-The demo content deliberately contains one stale item (CON-03), one coverage gap (PRN-04) and one overdue review (GDL-01), so the status page has something to show.
+The demo content deliberately contains one stale item (CON-02), one coverage gap (PRN-15) and one overdue review (GDL-04), so the status page has something to show.
 
 ## Item metadata
 
 ```yaml
 ---
-id: PRC-01
+id: PRC-02
 type: process
-title: Search period cycle
+title: Extended search planning cycle
 version: 1
 derives_from:        # parent ID: parent version this item was written against
-  CON-02: 1
-  GDL-02: 1
+  CON-16: 1
+  GDL-05: 1
 requires_children: [form]
 owner: doctrine-group
 last_reviewed: 2026-10-01
@@ -51,3 +51,12 @@ sphinx-build -W -b html docs docs/_build/html
 While the repository is private on GitHub Free, rulesets and Pages are unavailable. CI still runs, and each run's built site is downloadable as the `site` artifact. Both work once the repository is public (or on GitHub Pro).
 
 When the repository moves to an organisation, replace `@schmidtnz` in `CODEOWNERS` with the review group's team.
+
+## Licence
+
+| Material | Licence |
+|---|---|
+| Code and configuration (`tools/`, `tests/`, `docs/_ext/`, `docs/_static/`, `docs/conf.py`, `.github/`) | [MIT](LICENSE) |
+| Doctrine content (everything else under `docs/`) | [CC BY 4.0](LICENSE-docs), pending confirmation by LandSAR |
+
+The doctrine text is condensed from LandSAR's draft v0.1 and remains LandSAR's copyright. Until LandSAR confirms CC BY 4.0, the content is all rights reserved and shared for review only. Only doctrine published by LandSAR is authoritative; adapted copies must not present themselves as official. Third-party figures and forms are not covered by CC BY 4.0. See [NOTICE](NOTICE) for details.

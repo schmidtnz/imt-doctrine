@@ -47,9 +47,25 @@ html_theme_options = {
 }
 
 latex_engine = "xelatex"
-# The traceability tree nests principle → concept → guideline → process → form,
-# one level deeper than LaTeX's default limit of four bullet lists.
-latex_elements = {"maxlistdepth": "10"}
+
+
+def _watermark(release: str) -> str:
+    # Only final tagged releases print clean; everything else says what it is.
+    if not os.environ.get("DOCS_VERSION"):
+        return "DRAFT"
+    if "-demo" in release:
+        return "DEMO"
+    return "DRAFT" if "-" in release else ""
+
+
+_mark = _watermark(release)
+latex_elements = {
+    # The traceability tree nests principle → concept → guideline → process → form,
+    # one level deeper than LaTeX's default limit of four bullet lists.
+    "maxlistdepth": "10",
+    "preamble": (rf"\usepackage{{draftwatermark}}\SetWatermarkText{{{_mark}}}"
+                 r"\SetWatermarkLightness{0.92}") if _mark else "",
+}
 latex_documents = [
     ("index", "imt-doctrine.tex", f"IMT Doctrine {release}",
      "Doctrine working group", "manual"),

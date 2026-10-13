@@ -4,7 +4,9 @@ set -euo pipefail
 repo="${1:-schmidtnz/imt-doctrine}"
 
 gh repo edit "$repo" --enable-auto-merge --enable-discussions --delete-branch-on-merge
+gh label create preview -R "$repo" --color 0E8A16 --force \
+  --description "Publish a preview for a pull request from a fork" >/dev/null
 gh api -X POST "repos/$repo/rulesets" --input "$(dirname "$0")/../.github/rulesets/main.json" >/dev/null
 gh api -X POST "repos/$repo/pages" -f "source[branch]=gh-pages" -f "source[path]=/" >/dev/null \
   || echo "Pages not enabled: needs a public repo or GitHub Pro, and the gh-pages branch from the first publish run."
-echo "Done: auto-merge, discussions, ruleset."
+echo "Done: auto-merge, discussions, preview label, ruleset."

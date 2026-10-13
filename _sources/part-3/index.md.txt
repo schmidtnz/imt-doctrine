@@ -1,4 +1,6 @@
-# Part 3 Concepts, guidelines and processes
+# Part 3 Core concepts and framework
+
+The "how" of land search management, from fundamental concepts down to guidelines, processes, roles and capability.
 
 ```{toctree}
 :maxdepth: 2

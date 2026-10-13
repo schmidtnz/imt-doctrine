@@ -1,27 +1,117 @@
 # Traceability status
 
-Generated 2026-10-10 from 11 items: 4 principles, 3 concepts, 2 guidelines, 1 processes, 1 forms.
+Generated 2026-10-13 from 44 items: 15 principles, 17 concepts, 6 guidelines, 3 processes, 3 forms.
 
 ## Needs attention
 
 | Status | Item | Detail |
 |---|---|---|
-| warning | {doc}`PRN-04 Keep it simple </part-2/prn-04-simplicity>` | no concept derives from this principle yet |
-| stale | {doc}`CON-03 Safety management in search operations </part-3/3-1-concepts/con-03-safety-management>` | written against PRN-01 v1; PRN-01 is now v2 |
-| overdue | {doc}`GDL-01 Assessing urgency at initial response </part-3/3-3-guidelines/gdl-01-urgency-assessment>` | last reviewed 2025-06-30 |
+| warning | {doc}`PRN-15 Iwi and community partnerships </part-2/prn-15-iwi>` | no concept derives from this principle yet |
+| stale | {doc}`CON-02 Risk management and safety </part-3/3-1-concepts/con-02-safety>` | written against PRN-13 v1; PRN-13 is now v2 |
+| overdue | {doc}`GDL-04 Rescue phase: known location </part-3/3-3-guidelines/gdl-04-rescue>` | last reviewed 2025-06-30 |
 
 ## Derivation tree
 
-- {doc}`PRN-01 Safety first </part-2/prn-01-safety>`, v2
-  - {doc}`CON-03 Safety management in search operations </part-3/3-1-concepts/con-03-safety-management>`, v1 (stale)
-- {doc}`PRN-02 Act with urgency </part-2/prn-02-urgency>`, v1
-  - {doc}`CON-01 Search urgency </part-3/3-1-concepts/con-01-search-urgency>`, v1
-    - {doc}`GDL-01 Assessing urgency at initial response </part-3/3-3-guidelines/gdl-01-urgency-assessment>`, v1
-- {doc}`PRN-03 Evidence-based decisions </part-2/prn-03-evidence>`, v1
-  - {doc}`CON-02 Probability of area, detection and success </part-3/3-1-concepts/con-02-probability>`, v1
-    - {doc}`GDL-02 Recording POD at the team debrief </part-3/3-3-guidelines/gdl-02-recording-pod>`, v1
-      - {doc}`PRC-01 Search period cycle </part-3/3-4-processes/prc-01-search-period-cycle>`, v1
-        - {doc}`FRM-01 Team debrief form </forms/frm-01-team-debrief>`, v1
-    - {doc}`PRC-01 Search period cycle </part-3/3-4-processes/prc-01-search-period-cycle>`, v1
-      - {doc}`FRM-01 Team debrief form </forms/frm-01-team-debrief>`, v1
-- {doc}`PRN-04 Keep it simple </part-2/prn-04-simplicity>`, v1
+- {doc}`PRN-01 Unified and consistent approach </part-2/prn-01-unified>`, v1
+  - {doc}`CON-01 Hierarchical framework of the doctrine </part-3/3-1-concepts/con-01-hierarchy>`, v1
+- {doc}`PRN-02 Adherence to a national management framework (CIMS) </part-2/prn-02-cims>`, v1
+  - {doc}`CON-04 Notification and awareness </part-3/3-1-concepts/con-04-notification>`, v1
+    - {doc}`PRC-03 Notification and on-scene coordination </part-3/3-4-processes/prc-03-notification>`, v1
+  - {doc}`CON-06 Incident management teams and CIMS </part-3/3-1-concepts/con-06-imt-cims>`, v1
+    - {doc}`GDL-01 Managing an IMT: key actions </part-3/3-3-guidelines/gdl-01-managing-imt>`, v1
+- {doc}`PRN-03 Fostering partnerships and relationships </part-2/prn-03-partnerships>`, v1
+  - {doc}`CON-05 Leadership </part-3/3-1-concepts/con-05-leadership>`, v1
+  - {doc}`CON-06 Incident management teams and CIMS </part-3/3-1-concepts/con-06-imt-cims>`, v1
+    - {doc}`GDL-01 Managing an IMT: key actions </part-3/3-3-guidelines/gdl-01-managing-imt>`, v1
+- {doc}`PRN-04 Importance of regional collaboration </part-2/prn-04-regional>`, v1
+  - {doc}`CON-01 Hierarchical framework of the doctrine </part-3/3-1-concepts/con-01-hierarchy>`, v1
+- {doc}`PRN-05 Proactive planning and readiness </part-2/prn-05-readiness>`, v1
+  - {doc}`CON-03 Pre-operational readiness plans </part-3/3-1-concepts/con-03-pre-plans>`, v1
+  - {doc}`CON-13 Incident action plans </part-3/3-1-concepts/con-13-iap>`, v1
+    - {doc}`GDL-03 Handovers, demobilisation and operational debriefs </part-3/3-3-guidelines/gdl-03-handovers>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+- {doc}`PRN-06 Effective and supportive leadership </part-2/prn-06-leadership>`, v1
+  - {doc}`CON-05 Leadership </part-3/3-1-concepts/con-05-leadership>`, v1
+- {doc}`PRN-07 The critical role of communications </part-2/prn-07-communications>`, v1
+  - {doc}`CON-10 Communications </part-3/3-1-concepts/con-10-communications>`, v1
+- {doc}`PRN-08 Evidence-based and intelligence-led operations </part-2/prn-08-evidence>`, v1
+  - {doc}`CON-08 Maths in SAR </part-3/3-1-concepts/con-08-maths>`, v1
+  - {doc}`CON-09 Lost and missing person behaviour </part-3/3-1-concepts/con-09-lpb>`, v1
+  - {doc}`CON-11 Evidence-based and intelligence-led operations </part-3/3-1-concepts/con-11-intel-led>`, v1
+    - {doc}`GDL-01 Managing an IMT: key actions </part-3/3-3-guidelines/gdl-01-managing-imt>`, v1
+  - {doc}`CON-17 Search theory: POA × POD = POS </part-3/3-1-concepts/con-17-search-theory>`, v1
+    - {doc}`GDL-05 Extended search planning phase </part-3/3-3-guidelines/gdl-05-extended-search>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+      - {doc}`PRC-02 Extended search planning cycle </part-3/3-4-processes/prc-02-extended-search>`, v1
+        - {doc}`FRM-01 Team debrief (search effort evaluation) </forms/frm-01-team-debrief>`, v1
+        - {doc}`FRM-02 Scenario weighting sheet </forms/frm-02-scenario-weighting>`, v1
+    - {doc}`GDL-06 Suspension </part-3/3-3-guidelines/gdl-06-suspension>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+- {doc}`PRN-09 Search urgency </part-2/prn-09-urgency>`, v1
+  - {doc}`CON-04 Notification and awareness </part-3/3-1-concepts/con-04-notification>`, v1
+    - {doc}`PRC-03 Notification and on-scene coordination </part-3/3-4-processes/prc-03-notification>`, v1
+  - {doc}`CON-15 The initial response process </part-3/3-1-concepts/con-15-ir-process>`, v1
+    - {doc}`GDL-02 Initial response phase </part-3/3-3-guidelines/gdl-02-initial-response>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+      - {doc}`PRC-01 Initial response (MMISSI TD) </part-3/3-4-processes/prc-01-initial-response>`, v1
+        - {doc}`FRM-01 Team debrief (search effort evaluation) </forms/frm-01-team-debrief>`, v1
+    - {doc}`PRC-01 Initial response (MMISSI TD) </part-3/3-4-processes/prc-01-initial-response>`, v1
+      - {doc}`FRM-01 Team debrief (search effort evaluation) </forms/frm-01-team-debrief>`, v1
+- {doc}`PRN-10 Structured information management </part-2/prn-10-information>`, v1
+  - {doc}`CON-11 Evidence-based and intelligence-led operations </part-3/3-1-concepts/con-11-intel-led>`, v1
+    - {doc}`GDL-01 Managing an IMT: key actions </part-3/3-3-guidelines/gdl-01-managing-imt>`, v1
+- {doc}`PRN-11 Systematic and methodical approach: POA × POD = POS </part-2/prn-11-systematic>`, v1
+  - {doc}`CON-07 Phases of a land search and rescue operation </part-3/3-1-concepts/con-07-phases>`, v1
+    - {doc}`GDL-04 Rescue phase: known location </part-3/3-3-guidelines/gdl-04-rescue>`, v1
+    - {doc}`GDL-06 Suspension </part-3/3-3-guidelines/gdl-06-suspension>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+  - {doc}`CON-08 Maths in SAR </part-3/3-1-concepts/con-08-maths>`, v1
+  - {doc}`CON-12 Management by objectives </part-3/3-1-concepts/con-12-mbo>`, v1
+    - {doc}`GDL-01 Managing an IMT: key actions </part-3/3-3-guidelines/gdl-01-managing-imt>`, v1
+    - {doc}`GDL-03 Handovers, demobilisation and operational debriefs </part-3/3-3-guidelines/gdl-03-handovers>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+  - {doc}`CON-13 Incident action plans </part-3/3-1-concepts/con-13-iap>`, v1
+    - {doc}`GDL-03 Handovers, demobilisation and operational debriefs </part-3/3-3-guidelines/gdl-03-handovers>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+  - {doc}`CON-14 The Bike Wheel model </part-3/3-1-concepts/con-14-bike-wheel>`, v1
+    - {doc}`GDL-02 Initial response phase </part-3/3-3-guidelines/gdl-02-initial-response>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+      - {doc}`PRC-01 Initial response (MMISSI TD) </part-3/3-4-processes/prc-01-initial-response>`, v1
+        - {doc}`FRM-01 Team debrief (search effort evaluation) </forms/frm-01-team-debrief>`, v1
+  - {doc}`CON-15 The initial response process </part-3/3-1-concepts/con-15-ir-process>`, v1
+    - {doc}`GDL-02 Initial response phase </part-3/3-3-guidelines/gdl-02-initial-response>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+      - {doc}`PRC-01 Initial response (MMISSI TD) </part-3/3-4-processes/prc-01-initial-response>`, v1
+        - {doc}`FRM-01 Team debrief (search effort evaluation) </forms/frm-01-team-debrief>`, v1
+    - {doc}`PRC-01 Initial response (MMISSI TD) </part-3/3-4-processes/prc-01-initial-response>`, v1
+      - {doc}`FRM-01 Team debrief (search effort evaluation) </forms/frm-01-team-debrief>`, v1
+  - {doc}`CON-16 The extended search planning process </part-3/3-1-concepts/con-16-esp-process>`, v1
+    - {doc}`GDL-05 Extended search planning phase </part-3/3-3-guidelines/gdl-05-extended-search>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+      - {doc}`PRC-02 Extended search planning cycle </part-3/3-4-processes/prc-02-extended-search>`, v1
+        - {doc}`FRM-01 Team debrief (search effort evaluation) </forms/frm-01-team-debrief>`, v1
+        - {doc}`FRM-02 Scenario weighting sheet </forms/frm-02-scenario-weighting>`, v1
+    - {doc}`PRC-02 Extended search planning cycle </part-3/3-4-processes/prc-02-extended-search>`, v1
+      - {doc}`FRM-01 Team debrief (search effort evaluation) </forms/frm-01-team-debrief>`, v1
+      - {doc}`FRM-02 Scenario weighting sheet </forms/frm-02-scenario-weighting>`, v1
+  - {doc}`CON-17 Search theory: POA × POD = POS </part-3/3-1-concepts/con-17-search-theory>`, v1
+    - {doc}`GDL-05 Extended search planning phase </part-3/3-3-guidelines/gdl-05-extended-search>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+      - {doc}`PRC-02 Extended search planning cycle </part-3/3-4-processes/prc-02-extended-search>`, v1
+        - {doc}`FRM-01 Team debrief (search effort evaluation) </forms/frm-01-team-debrief>`, v1
+        - {doc}`FRM-02 Scenario weighting sheet </forms/frm-02-scenario-weighting>`, v1
+    - {doc}`GDL-06 Suspension </part-3/3-3-guidelines/gdl-06-suspension>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+- {doc}`PRN-12 The principle of simplicity </part-2/prn-12-simplicity>`, v1
+  - {doc}`CON-15 The initial response process </part-3/3-1-concepts/con-15-ir-process>`, v1
+    - {doc}`GDL-02 Initial response phase </part-3/3-3-guidelines/gdl-02-initial-response>`, v1
+      - {doc}`FRM-03 IMT summary checklist </forms/frm-03-imt-checklist>`, v1
+      - {doc}`PRC-01 Initial response (MMISSI TD) </part-3/3-4-processes/prc-01-initial-response>`, v1
+        - {doc}`FRM-01 Team debrief (search effort evaluation) </forms/frm-01-team-debrief>`, v1
+    - {doc}`PRC-01 Initial response (MMISSI TD) </part-3/3-4-processes/prc-01-initial-response>`, v1
+      - {doc}`FRM-01 Team debrief (search effort evaluation) </forms/frm-01-team-debrief>`, v1
+- {doc}`PRN-13 Prioritising safety </part-2/prn-13-safety>`, v2
+  - {doc}`CON-02 Risk management and safety </part-3/3-1-concepts/con-02-safety>`, v1 (stale)
+- {doc}`PRN-14 Continuous improvement </part-2/prn-14-improvement>`, v1
+  - {doc}`CON-01 Hierarchical framework of the doctrine </part-3/3-1-concepts/con-01-hierarchy>`, v1
+- {doc}`PRN-15 Iwi and community partnerships </part-2/prn-15-iwi>`, v1

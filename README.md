@@ -43,6 +43,8 @@ python tools/doctrace.py --root docs
 sphinx-build -W -b html docs docs/_build/html
 ```
 
+`requirements.txt` pins every package so a release can be rebuilt exactly. Change `requirements.in` instead, then run `uv pip compile requirements.in --universal --python-version 3.12 -o requirements.txt`. Dependabot proposes updates monthly.
+
 ## Releasing
 
 1. Every pull request ends with a **Changelog summary**: a sentence or two for readers, or "none". Reviewers can reword it before merging.

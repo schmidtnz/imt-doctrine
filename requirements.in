@@ -1,0 +1,5 @@
+sphinx>=8,<9
+myst-parser>=4,<5
+furo>=2024.8.6
+pyyaml>=6
+pytest>=8

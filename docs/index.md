@@ -25,5 +25,6 @@ glossary
 status/traceability
 how-this-works
 changelog
+contributors
 licence
 ```

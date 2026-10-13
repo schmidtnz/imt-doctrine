@@ -50,7 +50,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -C release/next
-          git commit -qam "chore: release $VERSION"
+          git add docs/changelog.md docs/contributors.md
+          git commit -qm "chore: release $VERSION"
           git push -f origin release/next
           pr=$(gh pr list --head release/next --state open --json number --jq '.[0].number // empty')
           if [ -n "$pr" ]; then

@@ -31,6 +31,7 @@ CHANNELS = ("final", "rc", "demo")
 GROUPS = ("Doctrine", "Guidance and forms", "Site and tooling")
 NONE_WORDS = {"none", "n/a", "na", "no", "-"}
 CHANGELOG = "docs/changelog.md"
+CONTRIBUTORS = "docs/contributors.md"
 RELEASE_BRANCH = "release/next"
 
 
@@ -191,13 +192,28 @@ def _pattern(pattern: str) -> re.Pattern[str]:
 
 # --- pull requests -------------------------------------------------------------------------------
 
+@dataclass(frozen=True)
+class Person:
+    login: str | None
+    name: str | None
+
+    @property
+    def display(self) -> str:
+        return self.name or f"@{self.login}"
+
+    @property
+    def markdown(self) -> str:
+        return f"[{self.display}](https://github.com/{self.login})" if self.login else self.display
+
+
 @dataclass
 class Entry:
     number: int
     title: str
-    author: str | None  # None for bots
+    author: Person | None  # None for bots
     summary: str | None  # None: no summary given; "": summary says none
     group: str
+    people: list[Person] = dataclasses.field(default_factory=list)  # author and commit co-authors
 
 
 def in_changelog(e: Entry) -> bool:
@@ -226,17 +242,58 @@ def group_for(paths: Iterable[str], owned: Callable[[str], bool], root: str = "d
     return GROUPS[1] if content else GROUPS[2]
 
 
-def entries_from(prs: list[dict], shas: set[str], owned: Callable[[str], bool]) -> list[Entry]:
+def entries_from(prs: list[dict], shas: set[str], owned: Callable[[str], bool],
+                 profile_name: Callable[[str], str | None] = lambda login: None) -> list[Entry]:
+    """Pull requests merged in this release. People are named as on their GitHub profile, else @login."""
     out = []
     for pr in prs:
         merge = (pr.get("mergeCommit") or {}).get("oid")
         if merge not in shas or pr.get("headRefName") == RELEASE_BRANCH:
             continue
-        author = pr.get("author") or {}
-        out.append(Entry(pr["number"], pr["title"], None if author.get("is_bot") else author.get("login"),
-                         parse_summary(pr.get("body")),
-                         group_for((f["path"] for f in pr.get("files") or []), owned)))
+        raw = pr.get("author") or {}
+        author = None if raw.get("is_bot") or not raw.get("login") else \
+            Person(raw["login"], raw.get("name") or profile_name(raw["login"]))
+        people = [author] if author else []
+        for commit in pr.get("commits") or []:
+            for a in commit.get("authors") or []:
+                login = a.get("login") or None
+                if login and login.endswith("[bot]"):
+                    continue
+                person = Person(login, profile_name(login)) if login else Person(None, a.get("name") or None)
+                if (person.login or person.name) and all(
+                        (p.login or p.name) != (person.login or person.name) for p in people):
+                    people.append(person)
+        out.append(Entry(pr["number"], pr["title"], author, parse_summary(pr.get("body")),
+                         group_for((f["path"] for f in pr.get("files") or []), owned), people))
     return sorted(out, key=lambda e: e.number)
+
+
+def contributors(entries: list[Entry]) -> list[Person]:
+    found: dict[str, Person] = {}
+    for e in entries:
+        if in_changelog(e):
+            for p in e.people:
+                found.setdefault(p.login or p.name or "", p)
+    return sorted(found.values(), key=lambda p: p.display.lstrip("@").casefold())
+
+
+def add_contributors(text: str, people: list[Person]) -> tuple[str, list[Person]]:
+    """Add people missing from the contributors page's list, keeping it sorted. Returns (text, added)."""
+    lines = text.rstrip("\n").split("\n")
+    bullets = [i for i, line in enumerate(lines) if line.startswith("- ")]
+    listed = [lines[i] for i in bullets]
+    logins = {m.lower() for line in listed for m in re.findall(r"https://github\.com/([\w-]+)\)", line)}
+    names = {re.sub(r"\[(.*?)\]\(.*?\)", r"\1", line[2:]).strip().casefold() for line in listed}
+    added = [p for p in people if (p.login or "").lower() not in logins and p.display.casefold() not in names]
+    if not added:
+        return text, []
+    entries = sorted(listed + [f"- {p.markdown}" for p in added],
+                     key=lambda line: re.sub(r"\[(.*?)\]\(.*?\)", r"\1", line[2:]).lstrip("@").casefold())
+    start = bullets[0] if bullets else len(lines) + 1
+    rest = [line for i, line in enumerate(lines) if i not in bullets]
+    if not bullets:
+        rest.append("")
+    return "\n".join(rest[:start] + entries + rest[start:]) + "\n", added
 
 
 # --- changelog -----------------------------------------------------------------------------------
@@ -297,10 +354,6 @@ def insert_section(text: str, section: str) -> str:
     return text.rstrip() + "\n\n" + section.rstrip() + "\n"
 
 
-def _person(login: str) -> str:
-    return f"[@{login}](https://github.com/{login})"
-
-
 def render_section(version: Version, date: dt.date, entries: list[Entry], changes: list[Change],
                    stale: list[doctrace.Finding], repo: str) -> str:
     lines = [f"## {version} — {date.isoformat()}", ""]
@@ -311,7 +364,7 @@ def render_section(version: Version, date: dt.date, entries: list[Entry], change
             for e in rows:
                 credit = f"[#{e.number}](https://github.com/{repo}/pull/{e.number})"
                 if e.author:
-                    credit += ", " + _person(e.author)
+                    credit += ", " + e.author.markdown
                 text = (e.summary or e.title).replace("\n", "\n  ")
                 lines.append(f"- {text} ({credit})")
             lines.append("")
@@ -329,14 +382,14 @@ def render_section(version: Version, date: dt.date, entries: list[Entry], change
         lines += ["### Needs review", ""]
         lines += [f"- **{f.item_id}** {f.message}" for f in stale]
         lines.append("")
-    authors = sorted({e.author for e in entries if e.author and in_changelog(e)}, key=str.lower)
-    if authors:
-        lines += ["Contributors: " + ", ".join(_person(a) for a in authors), ""]
+    people = contributors(entries)
+    if people:
+        lines += ["Contributors: " + ", ".join(p.markdown for p in people), ""]
     return "\n".join(lines)
 
 
 def render_body(version: Version, level: str, auto: str, changes: list[Change], since: Version | None,
-                entries: list[Entry], zero_major: bool) -> str:
+                entries: list[Entry], zero_major: bool, newcomers: Iterable[Person] = ()) -> str:
     doctrine = [c.id for c in changes if c.kind != "wording" and c.doctrine]
     other = [c.id for c in changes if c.kind != "wording" and not c.doctrine]
     why = (f"doctrine items changed ({', '.join(doctrine)})" if doctrine else
@@ -350,6 +403,9 @@ def render_body(version: Version, level: str, auto: str, changes: list[Change], 
              + f". Since {since or 'the start'}: {why}.", "",
              f"Reword anything in `{CHANGELOG}` in this pull request. Running *Prepare release* again "
              "rebuilds the section and discards those edits."]
+    if newcomers:
+        lines += ["", f"**New contributors**, added to `{CONTRIBUTORS}`: "
+                  + ", ".join(p.display for p in newcomers)]
     missing = [e for e in entries if e.summary is None and in_changelog(e)]
     left_out = [e for e in entries if not in_changelog(e)]
     if missing:
@@ -398,13 +454,30 @@ def merged_shas(top: Path, since: Version | None) -> set[str]:
 def github_prs(repo: str, base: str) -> list[dict]:
     out = subprocess.check_output(
         ["gh", "pr", "list", "-R", repo, "--state", "merged", "--base", base, "--limit", "1000",
-         "--json", "number,title,body,author,mergeCommit,files,headRefName"], text=True, encoding="utf-8")
+         "--json", "number,title,body,author,commits,mergeCommit,files,headRefName"],
+        text=True, encoding="utf-8")
     return json.loads(out)
 
 
+_names: dict[str, str | None] = {}
+
+
+def github_profile_name(login: str) -> str | None:
+    """The name on a GitHub profile, or None if it has none."""
+    if login not in _names:
+        try:
+            _names[login] = subprocess.check_output(
+                ["gh", "api", f"users/{login}", "--jq", ".name // empty"], text=True, encoding="utf-8",
+                stderr=subprocess.DEVNULL).strip() or None
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            _names[login] = None
+    return _names[login]
+
+
 def prepare(top: Path, channel: str, bump_to: str, repo: str, today: dt.date,
-            prs: Callable[[], list[dict]], root: str = "docs") -> tuple[Version, str, str]:
-    """Return (version, new changelog text, pull request description)."""
+            prs: Callable[[], list[dict]], profile_name: Callable[[str], str | None] = lambda login: None,
+            root: str = "docs") -> tuple[Version, dict[str, str], str]:
+    """Return (version, {path: new text} for each changed file, pull request description)."""
     tags = repo_tags(top)
     text = (top / CHANGELOG).read_text(encoding="utf-8")
     problems = changelog_problems(text, tags)
@@ -425,11 +498,18 @@ def prepare(top: Path, channel: str, bump_to: str, repo: str, today: dt.date,
     version = next_version(tags, level, channel)
     since = latest(tags) if channel == "rc" else base
     changes = item_changes(items_at(top, since and str(since), root), now, owned)
-    entries = entries_from(prs(), merged_shas(top, since), owned)
+    entries = entries_from(prs(), merged_shas(top, since), owned, profile_name)
     stale = [f for f in doctrace.check(now, today) if f.level == "stale"]
     section = render_section(version, today, entries, changes, stale, repo)
-    body = render_body(version, level, auto, changes, since, entries, zero_major) + "\n---\n\n" + section
-    return version, insert_section(text, section), body
+    files = {CHANGELOG: insert_section(text, section)}
+    newcomers: list[Person] = []
+    if (top / CONTRIBUTORS).exists():
+        page, newcomers = add_contributors((top / CONTRIBUTORS).read_text(encoding="utf-8"),
+                                           contributors(entries))
+        if newcomers:
+            files[CONTRIBUTORS] = page
+    body = render_body(version, level, auto, changes, since, entries, zero_major, newcomers)
+    return version, files, body + "\n---\n\n" + section
 
 
 # --- command line --------------------------------------------------------------------------------
@@ -496,14 +576,15 @@ def main(argv: list[str] | None = None) -> int:
             print(version or "Nothing to release: the newest changelog version is already tagged.")
             _output("version", str(version or ""))
             return 0
-        version, new_text, body = prepare(top, args.channel, args.bump, args.repo, dt.date.today(),
-                                          lambda: github_prs(args.repo, args.base))
+        version, files, body = prepare(top, args.channel, args.bump, args.repo, dt.date.today(),
+                                       lambda: github_prs(args.repo, args.base), github_profile_name)
     except (ReleaseError, subprocess.CalledProcessError) as exc:
         return _fail(str(exc))
     if args.dry_run:
         print(body)
     else:
-        (top / CHANGELOG).write_text(new_text, encoding="utf-8", newline="\n")
+        for path, new_text in files.items():
+            (top / path).write_text(new_text, encoding="utf-8", newline="\n")
         if args.body:
             args.body.write_text(body, encoding="utf-8")
     print(version)

@@ -147,9 +147,12 @@ class SummaryTests(unittest.TestCase):
         self.assertEqual(release.group_for(["tools/x.py", "docs/changelog.md"], owned), "Site and tooling")
 
     def test_entries_from(self):
+        commits = [{"authors": [{"login": "amy", "name": "amy-git"}, {"login": "ben", "name": "b"}]},
+                   {"authors": [{"login": "", "name": "Offline Olga"}, {"login": "github-actions[bot]"}]}]
         prs = [
-            {"number": 3, "title": "T3", "body": "## Changelog summary\nS3", "author": {"login": "amy"},
-             "mergeCommit": {"oid": "a"}, "files": [{"path": "docs/forms/f.md"}], "headRefName": "x"},
+            {"number": 3, "title": "T3", "body": "## Changelog summary\nS3", "author": {"login": "amy", "name": ""},
+             "mergeCommit": {"oid": "a"}, "files": [{"path": "docs/forms/f.md"}], "headRefName": "x",
+             "commits": commits},
             {"number": 4, "title": "Old", "body": "", "author": {"login": "bob"},
              "mergeCommit": {"oid": "zzz"}, "files": [], "headRefName": "y"},
             {"number": 5, "title": "Release", "body": "", "author": {"login": "app/github-actions", "is_bot": True},
@@ -157,10 +160,26 @@ class SummaryTests(unittest.TestCase):
             {"number": 6, "title": "Bump x", "body": "", "author": {"login": "app/dependabot", "is_bot": True},
              "mergeCommit": {"oid": "c"}, "files": [], "headRefName": "dependabot/pip/x"},
         ]
-        entries = release.entries_from(prs, {"a", "b", "c"}, lambda p: False)
+        names = {"amy": "Amy Ng"}
+        entries = release.entries_from(prs, {"a", "b", "c"}, lambda p: False, names.get)
+        P = release.Person
         self.assertEqual([(e.number, e.author, e.summary, e.group) for e in entries],
-                         [(3, "amy", "S3", "Guidance and forms"), (6, None, None, "Site and tooling")])
+                         [(3, P("amy", "Amy Ng"), "S3", "Guidance and forms"), (6, None, None, "Site and tooling")])
+        self.assertEqual(entries[0].people, [P("amy", "Amy Ng"), P("ben", None), P(None, "Offline Olga")])
         self.assertFalse(release.in_changelog(entries[1]))
+        self.assertEqual([p.markdown for p in release.contributors(entries)],
+                         ["[Amy Ng](https://github.com/amy)", "[@ben](https://github.com/ben)", "Offline Olga"])
+
+    def test_add_contributors(self):
+        P = release.Person
+        page = "# Contributors\n\nIntro.\n\n- [Amy Ng](https://github.com/amy)\n- Zed Hand\n\nFooter.\n"
+        text, added = release.add_contributors(page, [P("AMY", "Amy N."), P("bo", "Bo Li"), P(None, "Zed Hand")])
+        self.assertEqual(added, [P("bo", "Bo Li")])
+        self.assertEqual(text, "# Contributors\n\nIntro.\n\n- [Amy Ng](https://github.com/amy)\n"
+                               "- [Bo Li](https://github.com/bo)\n- Zed Hand\n\nFooter.\n")
+        self.assertEqual(release.add_contributors(text, [P("bo", None)]), (text, []))
+        text, _ = release.add_contributors("# Contributors\n", [P("cy", None)])
+        self.assertEqual(text, "# Contributors\n\n- [@cy](https://github.com/cy)\n")
 
 
 CHANGELOG = """# Changelog
@@ -198,9 +217,10 @@ class ChangelogTests(unittest.TestCase):
         self.assertEqual([h for h, _ in release.sections(text)][:2], ["v0.3.0 — 2026-10-20", "v0.2.0 — 2026-10-01"])
 
     def test_render_section(self):
-        entries = [release.Entry(1, "Title one", "amy", "Adds a form.\nSecond line.", "Guidance and forms"),
-                   release.Entry(2, "Fix typo", "bob", "", "Doctrine"),
-                   release.Entry(3, "Doctrine change", "Cy", None, "Doctrine")]
+        amy, bob, cy = release.Person("amy", None), release.Person("bob", "Bob"), release.Person("Cy", "Cy Ro")
+        entries = [release.Entry(1, "Title one", amy, "Adds a form.\nSecond line.", "Guidance and forms", [amy]),
+                   release.Entry(2, "Fix typo", bob, "", "Doctrine", [bob]),
+                   release.Entry(3, "Doctrine change", cy, None, "Doctrine", [cy, amy])]
         changes = [release.Change("PRN-03", "Partnerships", "changed", 1, 2, True),
                    release.Change("FRM-04", "Log", "new", None, 1, False),
                    release.Change("GDL-01", "Managing", "wording", 1, 1, False)]
@@ -208,13 +228,13 @@ class ChangelogTests(unittest.TestCase):
         text = release.render_section(V.parse("v1.1.0"), TODAY, entries, changes, stale, "o/r")
         self.assertTrue(text.startswith("## v1.1.0 — 2026-10-20\n"))
         self.assertLess(text.index("### Doctrine"), text.index("### Guidance and forms"))
-        self.assertIn("- Doctrine change ([#3](https://github.com/o/r/pull/3), [@Cy](https://github.com/Cy))", text)
+        self.assertIn("- Doctrine change ([#3](https://github.com/o/r/pull/3), [Cy Ro](https://github.com/Cy))", text)
         self.assertIn("- Adds a form.\n  Second line. ([#1]", text)
         self.assertNotIn("Fix typo", text)
         self.assertIn("- **PRN-03** Partnerships: v1 → v2\n- **FRM-04** Log: new, v1\n", text)
         self.assertIn("Wording only, meaning unchanged: GDL-01", text)
         self.assertIn("- **CON-03** written against PRN-03 v1", text)
-        self.assertIn("Contributors: [@amy](https://github.com/amy), [@Cy](https://github.com/Cy)", text)
+        self.assertIn("Contributors: [@amy](https://github.com/amy), [Cy Ro](https://github.com/Cy)\n", text)
 
 
 def write(root: Path, name: str, meta: str) -> None:
@@ -239,6 +259,8 @@ class PrepareTests(unittest.TestCase):
         write(self.root, "docs/part-3/con-01.md",
               "id: CON-01\ntype: concept\ntitle: Hazards\nderives_from:\n  PRN-01: 1")
         (self.root / "docs" / "changelog.md").write_text("# Changelog\n\n## v1.0.0\n\n- First.\n", encoding="utf-8")
+        (self.root / "docs" / "contributors.md").write_text(
+            "# Contributors\n\n- [Old Hand](https://github.com/old)\n", encoding="utf-8")
         self.commit("first")
         self.git("tag", "v1.0.0")
 
@@ -254,7 +276,7 @@ class PrepareTests(unittest.TestCase):
         return self.git("rev-parse", "HEAD").strip()
 
     def prepare(self, prs, channel="final", bump="auto"):
-        return release.prepare(self.root, channel, bump, "o/r", TODAY, lambda: prs)
+        return release.prepare(self.root, channel, bump, "o/r", TODAY, lambda: prs, {"amy": "Amy Ng"}.get)
 
     def test_guidance_change_is_minor_with_entries(self):
         write(self.root, "docs/part-3/con-01.md",
@@ -265,8 +287,11 @@ class PrepareTests(unittest.TestCase):
                 "files": [{"path": "docs/part-3/con-01.md"}], "headRefName": "edit"},
                {"number": 1, "title": "Before", "body": "", "author": {"login": "old"},
                 "mergeCommit": {"oid": "not-in-range"}, "files": [], "headRefName": "x"}]
-        version, text, body = self.prepare(prs)
+        version, files, body = self.prepare(prs)
+        text = files[release.CHANGELOG]
         self.assertEqual(str(version), "v1.1.0")
+        self.assertIn("- [Amy Ng](https://github.com/amy)\n- [Old Hand]", files[release.CONTRIBUTORS])
+        self.assertIn("**New contributors**, added to `docs/contributors.md`: Amy Ng", body)
         self.assertIn("## v1.1.0 — 2026-10-20\n\n### Guidance and forms\n\n- Clarifies hazards. ([#7]", text)
         self.assertIn("- **CON-01** Hazards: v1 → v2", text)
         self.assertNotIn("Before", text)
@@ -279,16 +304,18 @@ class PrepareTests(unittest.TestCase):
         self.assertEqual(str(self.prepare([])[0]), "v2.0.0")
         with self.assertRaises(release.ReleaseError):
             self.prepare([], bump="minor")
-        self.assertIn("Needs review", self.prepare([])[1])
+        files = self.prepare([])[1]
+        self.assertIn("Needs review", files[release.CHANGELOG])
+        self.assertNotIn(release.CONTRIBUTORS, files)
 
     def test_wording_only_is_patch_and_waiting_release_blocks(self):
         (self.root / "docs" / "part-3" / "con-01.md").write_text(
             "---\nid: CON-01\ntype: concept\ntitle: Hazards\nderives_from:\n  PRN-01: 1\n---\n\nNew words.\n",
             encoding="utf-8")
         self.commit("wording")
-        version, text, _ = self.prepare([], channel="rc")
+        version, files, _ = self.prepare([], channel="rc")
         self.assertEqual(str(version), "v1.0.1-rc.1")
-        (self.root / "docs" / "changelog.md").write_text(text, encoding="utf-8")
+        (self.root / "docs" / "changelog.md").write_text(files[release.CHANGELOG], encoding="utf-8")
         with self.assertRaises(release.ReleaseError):
             self.prepare([])
 

@@ -38,6 +38,24 @@ jobs:
           name: site
           path: docs/_build/html
 
+  pdf:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: ./.github/actions/latex
+      - run: sphinx-build -M latexpdf docs docs/_build
+      - uses: actions/upload-artifact@v6
+        with:
+          name: pdf
+          path: docs/_build/latex/imt-doctrine.pdf
+
   # Checks the built HTML, where cross-references and glossary terms have become real links.
   links:
     runs-on: ubuntu-latest

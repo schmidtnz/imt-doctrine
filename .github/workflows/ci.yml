@@ -73,6 +73,6 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: sphinx-build -b html docs docs/_build/html
-      - uses: lycheeverse/lychee-action@v2
+      - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
         with:
           args: --no-progress --root-dir "${{ github.workspace }}/docs/_build/html" 'docs/_build/html/**/*.html' README.md CONTRIBUTING.md

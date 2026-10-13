@@ -30,7 +30,7 @@ jobs:
           sphinx-build -M latexpdf docs docs/_build
           cp docs/_build/latex/imt-doctrine.pdf docs/_build/html/
       # Keeps PR previews in pr-preview/ when the main site is replaced.
-      - uses: JamesIves/github-pages-deploy-action@v4
+      - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
         with:
           folder: docs/_build/html
           branch: gh-pages

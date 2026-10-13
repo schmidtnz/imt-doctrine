@@ -57,7 +57,7 @@ jobs:
           echo "ready=true" >> "$GITHUB_OUTPUT"
       - id: preview
         if: steps.find.outputs.ready == 'true'
-        uses: rossjrw/pr-preview-action@v1
+        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
         with:
           source-dir: _preview
           pr-number: ${{ steps.find.outputs.pr }}
@@ -85,7 +85,7 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
       - if: steps.message.outputs.body != ''
-        uses: marocchino/sticky-pull-request-comment@v3
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
           header: pr-preview
           number_force: ${{ steps.find.outputs.pr }}
@@ -97,6 +97,6 @@ jobs:
     concurrency: preview-remove-${{ github.event.number }}
     steps:
       - uses: actions/checkout@v5
-      - uses: rossjrw/pr-preview-action@v1
+      - uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
         with:
           action: remove

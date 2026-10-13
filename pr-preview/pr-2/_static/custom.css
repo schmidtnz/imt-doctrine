@@ -1,0 +1,4 @@
+/* Traceability box shown at the top of each doctrine item. */
+.admonition.doctrace { border-left-color: var(--color-brand-primary); font-size: 0.9em; }
+.admonition.doctrace.stale { border-left-color: #c77700; }
+.admonition.placeholder { opacity: 0.8; }

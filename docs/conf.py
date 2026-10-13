@@ -47,6 +47,9 @@ html_theme_options = {
 }
 
 latex_engine = "xelatex"
+# The traceability tree nests principle → concept → guideline → process → form,
+# one level deeper than LaTeX's default limit of four bullet lists.
+latex_elements = {"maxlistdepth": "10"}
 latex_documents = [
     ("index", "imt-doctrine.tex", f"IMT Doctrine {release}",
      "Doctrine working group", "manual"),

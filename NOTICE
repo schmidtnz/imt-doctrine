@@ -1,0 +1,38 @@
+IMT Doctrine (demonstration)
+============================
+
+This repository contains two kinds of material under different licences.
+
+1. Code and configuration: MIT License (see LICENSE)
+   tools/, tests/, docs/_ext/, docs/_static/, docs/conf.py, .github/,
+   requirements.txt and other build or repository configuration.
+
+2. Doctrine content: Creative Commons Attribution 4.0 International
+   (CC BY 4.0, see LICENSE-docs)
+   All other files under docs/, including docs/_snippets/.
+
+Status of the content licence
+-----------------------------
+The doctrine text is condensed from "Incident Management for Land Search
+and Rescue in New Zealand", draft v0.1 (September 2026), copyright Land
+Search and Rescue New Zealand (LandSAR). CC BY 4.0 is the proposed licence
+for this content and applies only once LandSAR confirms it. Until then the
+content is all rights reserved and is shared for review only.
+
+Authoritative version
+---------------------
+Only doctrine published by LandSAR is authoritative. Adapted copies must
+say they have been changed and must not present themselves as official
+LandSAR doctrine or imply endorsement by LandSAR.
+
+Third-party material
+--------------------
+Figures, tables or forms owned by third parties are not covered by
+CC BY 4.0. Any such item added to this repository must name its source
+and terms where it is used.
+
+Attribution
+-----------
+Suggested attribution: "Based on IMT Doctrine, Land Search and Rescue
+New Zealand, licensed under CC BY 4.0
+(https://creativecommons.org/licenses/by/4.0/)."

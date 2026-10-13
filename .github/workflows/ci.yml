@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Prepare release dispatches this on the release branch, whose pull request can't trigger it.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,6 +33,8 @@ jobs:
           python tools/doctrace.py --root docs $base --report trace-report.md || status=$?
           cat trace-report.md >> "$GITHUB_STEP_SUMMARY"
           exit $status
+      - name: Changelog check
+        run: python tools/release.py check
       - name: Build site
         run: sphinx-build -W --keep-going -b html docs docs/_build/html
       - uses: actions/upload-artifact@v6

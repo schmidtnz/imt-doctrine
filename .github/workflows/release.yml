@@ -1,17 +1,48 @@
 name: Release
 
+# Publishes the newest changelog version once it reaches main (normally by merging the release
+# pull request): builds the site and PDF, then creates the tag and GitHub release in one step.
+# Does nothing when the newest changelog version is already tagged.
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+    paths: [docs/changelog.md]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
+  pending:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.pending.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - id: pending
+        run: python tools/release.py pending
+
   release:
+    needs: pending
+    if: needs.pending.outputs.version != ''
     runs-on: ubuntu-24.04
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
     env:
-      DOCS_VERSION: ${{ github.ref_name }}
+      DOCS_VERSION: ${{ needs.pending.outputs.version }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -24,15 +55,28 @@ jobs:
       - uses: ./.github/actions/latex
       - run: sphinx-build -W --keep-going -b html docs docs/_build/html
       - run: sphinx-build -M latexpdf docs docs/_build
+      # imt-doctrine.pdf keeps one name across releases, so
+      # https://github.com/<repo>/releases/latest/download/imt-doctrine.pdf always gets the latest final.
       - name: Package
         run: |
-          cp docs/_build/latex/imt-doctrine.pdf "imt-doctrine-${DOCS_VERSION}.pdf"
-          (cd docs/_build/html && zip -qr "$GITHUB_WORKSPACE/imt-doctrine-${DOCS_VERSION}-html.zip" .)
+          mkdir dist
+          cp docs/_build/latex/imt-doctrine.pdf "dist/imt-doctrine-${DOCS_VERSION}.pdf"
+          cp docs/_build/latex/imt-doctrine.pdf dist/imt-doctrine.pdf
+          (cd docs/_build/html && zip -qr "$GITHUB_WORKSPACE/dist/imt-doctrine-${DOCS_VERSION}-html.zip" .)
+          (cd dist && sha256sum -- * > SHA256SUMS)
+      # Lets anyone check a PDF came from this repository's release build. Needs a public repository.
+      - if: ${{ !github.event.repository.private }}
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: dist/*
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          python tools/release.py notes "$DOCS_VERSION" > notes.md
           flags=""
           case "$DOCS_VERSION" in *-*) flags="--prerelease";; esac
-          gh release create "$DOCS_VERSION" imt-doctrine-*.pdf imt-doctrine-*-html.zip \
-            --title "IMT Doctrine $DOCS_VERSION" --notes-file docs/changelog.md --verify-tag $flags
+          # Draft first so the release is complete (and immutable, if enabled) before anyone sees it.
+          gh release create "$DOCS_VERSION" dist/* --draft --target "$GITHUB_SHA" \
+            --title "IMT Doctrine $DOCS_VERSION" --notes-file notes.md $flags
+          gh release edit "$DOCS_VERSION" --draft=false

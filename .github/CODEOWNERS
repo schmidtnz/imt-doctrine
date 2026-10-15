@@ -5,10 +5,12 @@
 /docs/part-3/3-1-concepts/       @schmidtnz
 /docs/part-3/3-2-core-operations/ @schmidtnz
 /docs/glossary.md                @schmidtnz
+/docs/changelog.md               @schmidtnz
 /docs/_snippets/                 @schmidtnz
 /docs/conf.py                    @schmidtnz
 /docs/_ext/                      @schmidtnz
 /tools/                          @schmidtnz
 /.github/                        @schmidtnz
 
+# docs/changelog.md is owned so that a doctrine owner approves each release pull request.
 # Guidance tier (3.3-3.6, forms, other pages): no owner, so one approval from anyone merges.

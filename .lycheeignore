@@ -1,2 +1,6 @@
 # Repo is private, so its own GitHub URLs return 404 to the checker. Remove once public.
 ^https://github\.com/schmidtnz/imt-doctrine
+# The PDF is copied into the site after the HTML build.
+imt-doctrine\.pdf$
+# Changelog credits link to GitHub profiles, which rate-limit link checkers.
+^https://github\.com/[^/]+/?$

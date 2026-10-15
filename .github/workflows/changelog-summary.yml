@@ -1,0 +1,26 @@
+name: Changelog summary
+
+# Each pull request ends with a "Changelog summary" section; Prepare release copies it into the
+# changelog. Runs again when the description is edited, so a reviewer's rewording is checked too.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  changelog-summary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - run: uv sync --locked
+      # Release pull requests (dispatched) and bots' pull requests have no summary to check.
+      - env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          SKIP: ${{ github.event_name != 'pull_request' || github.event.pull_request.user.type == 'Bot' }}
+        run: |
+          if [ "$SKIP" = true ]; then echo "Nothing to check."; exit 0; fi
+          uv run python tools/release.py summary

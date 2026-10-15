@@ -10,8 +10,8 @@ A working demonstration of writing, reviewing and publishing land SAR IMT doctri
 | Traceability: principle → concept → guideline → process → form, with stale, orphan, coverage and overdue checks | `tools/doctrace.py`, `docs/status/traceability` page |
 | Trace box on every item page (parent, children, version, review state) | `docs/_ext/traceability.py` |
 | Say it once: shared snippet (POD scale), glossary, organisation-name substitution | `docs/_snippets/`, `docs/glossary.md`, `docs/conf.py` |
-| Versioned releases with PDF and zipped HTML | `.github/workflows/release.yml` |
-| PR previews, link checking, monthly review-date issue | `.github/workflows/` |
+| Releases: version worked out from item changes, changelog from pull request summaries, PDF, zipped HTML and checksums | `tools/release.py`, `.github/workflows/prepare-release.yml`, `release.yml` |
+| PR previews with PDF (forks too), link checking, monthly review-date issue | `.github/workflows/` |
 
 The demo content deliberately contains one stale item (CON-02), one coverage gap (PRN-15) and one overdue review (GDL-04), so the status page has something to show.
 
@@ -36,17 +36,34 @@ Bump `version` when an item's meaning changes. Children written against the olde
 
 ## Build locally
 
+Needs [uv](https://docs.astral.sh/uv/), which installs Python 3.12 and the dependencies on first use.
+
 ```sh
-pip install -r requirements.txt
-pytest -q
-python tools/doctrace.py --root docs
-sphinx-build -W -b html docs docs/_build/html
+uv run pytest -q
+uv run python tools/doctrace.py --root docs
+uv run sphinx-build -W -b html docs docs/_build/html
 ```
+
+`uv.lock` pins every package so a release can be rebuilt exactly. Change dependencies with `uv add` or `uv remove` (`--dev` for test-only ones), which update `pyproject.toml` and the lock together. Dependabot proposes updates monthly.
+
+## Releasing
+
+1. Every pull request ends with a **Changelog summary**: a sentence or two for readers, or "none". Reviewers can reword it before merging.
+2. When it's time for a release, a doctrine owner runs **Actions → Prepare release** and picks final, rc (release candidate for consultation) or demo. It works out the version and opens a "Release vX.Y.Z" pull request that adds the changelog section. Each entry credits its pull request's author, and the section lists everyone who wrote or co-wrote a change, by their GitHub profile name or else their handle. Newcomers are added to the overall `docs/contributors.md` page, which also takes people added by hand.
+3. Reword the section in that pull request if needed, then approve and merge. **Release** builds the site and PDF, then creates the tag and the GitHub release.
+
+| Since the last release | Version |
+|---|---|
+| A doctrine item (Parts 1, 2, 3.1–3.2) added, removed or its `version` bumped | major |
+| Any other item added, removed or its `version` bumped | minor |
+| Wording only | patch |
+
+Before 1.0.0 each row moves down one step. You can choose a higher bump but never a lower one. Nobody types a version number, and CI rejects changelog headings that are malformed (`V1.2`, `v1.02.0`) or skip a version. The latest final PDF is always at `releases/latest/download/imt-doctrine.pdf`.
 
 ## First-time setup
 
 1. Push `main`, then run `tools/setup-repo.sh` (needs `gh` with admin rights). It turns on auto-merge and Discussions, adds the ruleset and enables Pages from the `gh-pages` branch.
-2. Tag a release: `git tag v0.1.0-demo && git push --tags`.
+2. Publish the release waiting in the changelog: **Actions → Release → Run workflow**. After that, use Prepare release.
 
 While the repository is private on GitHub Free, rulesets and Pages are unavailable. CI still runs, and each run's built site is downloadable as the `site` artifact. Both work once the repository is public (or on GitHub Pro).
 

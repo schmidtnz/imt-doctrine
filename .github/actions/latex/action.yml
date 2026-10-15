@@ -1,0 +1,10 @@
+name: Install LaTeX
+description: TeX Live packages needed by `sphinx-build -M latexpdf` with xelatex.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends latexmk xindy texlive-xetex \
+          texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended fonts-freefont-otf

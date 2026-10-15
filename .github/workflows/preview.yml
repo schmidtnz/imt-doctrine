@@ -1,32 +1,102 @@
 name: PR preview
 
+# Publishes what CI built for a pull request to gh-pages/pr-preview/pr-N/, and removes it when the
+# pull request closes. Runs in the base repository so it also works for pull requests from forks.
+# It never checks out or runs pull request code: it only copies CI's built files.
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, closed]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+  pull_request_target:
+    types: [labeled, closed]
 
 permissions:
+  actions: read
   contents: write
   pull-requests: write
 
-concurrency: preview-${{ github.ref }}
-
 jobs:
-  preview:
+  deploy:
+    if: >-
+      (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request'
+        && github.event.workflow_run.conclusion != 'cancelled')
+      || (github.event_name == 'pull_request_target' && github.event.action == 'labeled'
+        && github.event.label.name == 'preview')
     runs-on: ubuntu-latest
+    concurrency: preview-${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      HEAD_SHA: ${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha }}
+      RUN_ID: ${{ github.event.workflow_run.id }}
     steps:
       - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v6
-        if: github.event.action != 'closed'
-        with:
-          python-version: "3.12"
-          cache: pip
-      - if: github.event.action != 'closed'
+      # Fork previews are served from this repository's Pages site, so they need a maintainer's
+      # `preview` label first. Branches in this repository and collaborators' forks deploy directly.
+      - name: Find pull request and build
+        id: find
         run: |
-          pip install -r requirements.txt
-          sphinx-build -b html docs docs/_build/html
-      # Publishes to gh-pages/pr-preview/pr-N/ and comments the link; removes it when the PR closes.
-      - uses: rossjrw/pr-preview-action@v1
+          pr=$(gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" \
+            --jq ".[] | select(.head.sha == \"$HEAD_SHA\") | .number")
+          pr=${pr%%[[:space:]]*}
+          if [ -z "$pr" ]; then echo "No open pull request at $HEAD_SHA."; exit 0; fi
+          echo "pr=$pr" >> "$GITHUB_OUTPUT"
+          trusted=$(gh api "repos/$REPO/pulls/$pr" --jq "(.head.repo.full_name == \"$REPO\")
+            or (.author_association | IN(\"OWNER\", \"MEMBER\", \"COLLABORATOR\"))
+            or any(.labels[]; .name == \"preview\")")
+          echo "trusted=$trusted" >> "$GITHUB_OUTPUT"
+          [ "$trusted" = true ] || exit 0
+          run=$RUN_ID
+          if [ -z "$run" ]; then
+            run=$(gh run list -R "$REPO" --workflow ci.yml --commit "$HEAD_SHA" --event pull_request \
+              --status completed --json databaseId --jq '.[0].databaseId // empty')
+            if [ -z "$run" ]; then echo "CI is still running; the preview deploys when it finishes."; exit 0; fi
+          fi
+          gh run download "$run" -R "$REPO" -n site -D _preview || { echo "CI built no site."; exit 0; }
+          gh run download "$run" -R "$REPO" -n pdf -D _preview && echo "pdf=true" >> "$GITHUB_OUTPUT" || true
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+      - id: preview
+        if: steps.find.outputs.ready == 'true'
+        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
         with:
-          source-dir: docs/_build/html
+          source-dir: _preview
+          pr-number: ${{ steps.find.outputs.pr }}
+          action: deploy
+          comment: false
+          deploy-commit-message: Deploy preview for PR ${{ steps.find.outputs.pr }}
+      - id: message
+        if: steps.find.outputs.pr
+        env:
+          URL: ${{ steps.preview.outputs.preview-url }}
+          READY: ${{ steps.find.outputs.ready }}
+          PDF: ${{ steps.find.outputs.pdf }}
+          TRUSTED: ${{ steps.find.outputs.trusted }}
+        run: |
+          {
+            echo "body<<EOF"
+            if [ "$READY" = true ]; then
+              echo "**Preview:** $URL"
+              [ "$PDF" = true ] && echo "**PDF:** ${URL}imt-doctrine.pdf"
+              echo
+              echo "Built from $HEAD_SHA. Updates on each push; removed when this pull request closes."
+            elif [ "$TRUSTED" != true ]; then
+              echo "No preview yet: this pull request comes from a fork. A maintainer can add the \`preview\` label to publish one."
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+      - if: steps.message.outputs.body != ''
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: pr-preview
+          number_force: ${{ steps.find.outputs.pr }}
+          message: ${{ steps.message.outputs.body }}
+
+  remove:
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    concurrency: preview-remove-${{ github.event.number }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
+        with:
+          action: remove

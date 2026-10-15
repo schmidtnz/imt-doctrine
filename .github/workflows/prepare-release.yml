@@ -1,0 +1,63 @@
+name: Prepare release
+
+# Opens or refreshes the "Release vX.Y.Z" pull request. The version comes from item changes since
+# the last release; the changelog section from merged pull requests' changelog summaries.
+# Merging that pull request publishes the release (release.yml).
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: final, rc (release candidate for consultation) or demo
+        type: choice
+        options: [final, rc, demo]
+        default: final
+      bump:
+        description: auto works it out from item changes; pick a level only to go higher
+        type: choice
+        options: [auto, patch, minor, major]
+        default: auto
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+concurrency: prepare-release
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - run: uv sync --locked
+      - id: prepare
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          BUMP: ${{ inputs.bump }}
+        run: uv run python tools/release.py prepare --channel "$CHANNEL" --bump "$BUMP" --body "$RUNNER_TEMP/body.md"
+      - name: Open release pull request
+        env:
+          VERSION: ${{ steps.prepare.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C release/next
+          git add docs/changelog.md docs/contributors.md
+          git commit -qm "chore: release $VERSION"
+          git push -f origin release/next
+          pr=$(gh pr list --head release/next --state open --json number --jq '.[0].number // empty')
+          if [ -n "$pr" ]; then
+            gh pr edit "$pr" --title "Release $VERSION" --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh pr create --head release/next --base main --title "Release $VERSION" --body-file "$RUNNER_TEMP/body.md"
+          fi
+          # Pull requests opened with GITHUB_TOKEN don't trigger pull_request workflows, so run the
+          # required checks directly.
+          gh workflow run ci.yml --ref release/next
+          gh workflow run changelog-summary.yml --ref release/next

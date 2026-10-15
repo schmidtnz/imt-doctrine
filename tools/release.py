@@ -498,7 +498,10 @@ def prepare(top: Path, channel: str, bump_to: str, repo: str, today: dt.date,
     version = next_version(tags, level, channel)
     since = latest(tags) if channel == "rc" else base
     changes = item_changes(items_at(top, since and str(since), root), now, owned)
-    entries = entries_from(prs(), merged_shas(top, since), owned, profile_name)
+    shas = merged_shas(top, since)
+    if not shas:
+        raise ReleaseError(f"nothing has changed since {since}")
+    entries = entries_from(prs(), shas, owned, profile_name)
     stale = [f for f in doctrace.check(now, today) if f.level == "stale"]
     section = render_section(version, today, entries, changes, stale, repo)
     files = {CHANGELOG: insert_section(text, section)}

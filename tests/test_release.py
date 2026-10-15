@@ -298,6 +298,10 @@ class PrepareTests(unittest.TestCase):
         self.assertIn("**Version:** minor. Since v1.0.0: guidance or form items changed (CON-01).", body)
         self.assertEqual(release.changelog_problems(text, release.repo_tags(self.root)), [])
 
+    def test_nothing_to_release(self):
+        with self.assertRaises(release.ReleaseError):
+            self.prepare([])
+
     def test_doctrine_change_is_major_and_bump_cannot_go_lower(self):
         write(self.root, "docs/part-2/prn-01.md", "id: PRN-01\ntype: principle\ntitle: Safety\nversion: 2")
         self.commit("doctrine")

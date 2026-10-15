@@ -1,5 +1,6 @@
 """Sphinx configuration for the IMT doctrine site."""
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -50,12 +51,11 @@ latex_engine = "xelatex"
 
 
 def _watermark(release: str) -> str:
-    # Only final tagged releases print clean; everything else says what it is.
-    if not os.environ.get("DOCS_VERSION"):
-        return "DRAFT"
-    if "-demo" in release:
+    # Only an exact final release tag prints clean.
+    m = re.fullmatch(r"v\d+\.\d+\.\d+(-rc\.\d+|-demo)?", release)
+    if m and m.group(1) == "-demo":
         return "DEMO"
-    return "DRAFT" if "-" in release else ""
+    return "" if m and not m.group(1) else "DRAFT"
 
 
 _mark = _watermark(release)

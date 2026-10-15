@@ -37,7 +37,8 @@ jobs:
         id: find
         run: |
           pr=$(gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" \
-            --jq ".[] | select(.head.sha == \"$HEAD_SHA\") | .number" | head -n1)
+            --jq ".[] | select(.head.sha == \"$HEAD_SHA\") | .number")
+          pr=${pr%%[[:space:]]*}
           if [ -z "$pr" ]; then echo "No open pull request at $HEAD_SHA."; exit 0; fi
           echo "pr=$pr" >> "$GITHUB_OUTPUT"
           trusted=$(gh api "repos/$REPO/pulls/$pr" --jq "(.head.repo.full_name == \"$REPO\")

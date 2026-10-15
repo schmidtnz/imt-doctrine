@@ -38,7 +38,7 @@ jobs:
     permissions:
       actions: write
       attestations: write
-      contents: write
+      contents: read
       id-token: write
     env:
       DOCS_VERSION: ${{ needs.pending.outputs.version }}
@@ -66,9 +66,16 @@ jobs:
         uses: actions/attest-build-provenance@v4
         with:
           subject-path: dist/*
+      # Tags are created as the release app, the only non-admin the tag ruleset allows.
+      - id: app
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_KEY }}
+          permission-contents: write
       - name: Create release
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
         run: |
           uv run python tools/release.py notes "$DOCS_VERSION" > notes.md
           flags=""

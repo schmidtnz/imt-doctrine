@@ -236,7 +236,9 @@ def parse_summary(body: str | None) -> str | None:
 
 
 def group_for(paths: Iterable[str], owned: Callable[[str], bool], root: str = "docs") -> str:
-    content = [p for p in paths if p.startswith(root + "/") and p.endswith(".md") and p != CHANGELOG]
+    """Doctrine if an owned page changed, guidance for other section pages, else site and tooling."""
+    content = [p for p in paths if p.startswith(root + "/") and p.endswith(".md")
+               and (owned(p) or "/" in p[len(root) + 1:])]
     if any(owned(p) for p in content):
         return GROUPS[0]
     return GROUPS[1] if content else GROUPS[2]
@@ -451,12 +453,19 @@ def merged_shas(top: Path, since: Version | None) -> set[str]:
     return set(_git(top, "rev-list", f"{since}..HEAD" if since else "HEAD").split())
 
 
-def github_prs(repo: str, base: str) -> list[dict]:
-    out = subprocess.check_output(
-        ["gh", "pr", "list", "-R", repo, "--state", "merged", "--base", base, "--limit", "1000",
-         "--json", "number,title,body,author,commits,mergeCommit,files,headRefName"],
-        text=True, encoding="utf-8")
-    return json.loads(out)
+def _gh_json(*args: str):
+    return json.loads(subprocess.check_output(["gh", *args], text=True, encoding="utf-8"))
+
+
+def github_prs(repo: str, base: str, shas: set[str]) -> list[dict]:
+    """Pull requests merged as one of shas; commits are fetched per PR to stay under GraphQL limits."""
+    prs = [pr for pr in _gh_json("pr", "list", "-R", repo, "--state", "merged", "--base", base,
+                                 "--limit", "1000",
+                                 "--json", "number,title,body,author,mergeCommit,files,headRefName")
+           if (pr.get("mergeCommit") or {}).get("oid") in shas]
+    for pr in prs:
+        pr["commits"] = _gh_json("pr", "view", str(pr["number"]), "-R", repo, "--json", "commits")["commits"]
+    return prs
 
 
 _names: dict[str, str | None] = {}
@@ -475,7 +484,7 @@ def github_profile_name(login: str) -> str | None:
 
 
 def prepare(top: Path, channel: str, bump_to: str, repo: str, today: dt.date,
-            prs: Callable[[], list[dict]], profile_name: Callable[[str], str | None] = lambda login: None,
+            prs: Callable[[set[str]], list[dict]], profile_name: Callable[[str], str | None] = lambda login: None,
             root: str = "docs") -> tuple[Version, dict[str, str], str]:
     """Return (version, {path: new text} for each changed file, pull request description)."""
     tags = repo_tags(top)
@@ -501,7 +510,7 @@ def prepare(top: Path, channel: str, bump_to: str, repo: str, today: dt.date,
     shas = merged_shas(top, since)
     if not shas:
         raise ReleaseError(f"nothing has changed since {since}")
-    entries = entries_from(prs(), shas, owned, profile_name)
+    entries = entries_from(prs(shas), shas, owned, profile_name)
     stale = [f for f in doctrace.check(now, today) if f.level == "stale"]
     section = render_section(version, today, entries, changes, stale, repo)
     files = {CHANGELOG: insert_section(text, section)}
@@ -580,7 +589,8 @@ def main(argv: list[str] | None = None) -> int:
             _output("version", str(version or ""))
             return 0
         version, files, body = prepare(top, args.channel, args.bump, args.repo, dt.date.today(),
-                                       lambda: github_prs(args.repo, args.base), github_profile_name)
+                                       lambda shas: github_prs(args.repo, args.base, shas),
+                                       github_profile_name)
     except (ReleaseError, subprocess.CalledProcessError) as exc:
         return _fail(str(exc))
     if args.dry_run:

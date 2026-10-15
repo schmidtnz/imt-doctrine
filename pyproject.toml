@@ -1,0 +1,19 @@
+[project]
+name = "imt-doctrine"
+# Unused: releases are versioned from docs/changelog.md.
+version = "0"
+description = "LandSAR IMT doctrine, built with Sphinx and checked for traceability."
+requires-python = ">=3.12"
+dependencies = [
+    "sphinx>=8,<9",
+    "myst-parser>=4,<5",
+    "furo>=2024.8.6",
+    "pyyaml>=6",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv]
+# A documentation site, not an installable package.
+package = false

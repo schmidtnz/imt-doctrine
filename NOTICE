@@ -5,7 +5,7 @@ This repository contains two kinds of material under different licences.
 
 1. Code and configuration: MIT License (see LICENSE)
    tools/, tests/, docs/_ext/, docs/_static/, docs/conf.py, .github/,
-   requirements.txt and other build or repository configuration.
+   pyproject.toml, uv.lock and other build or repository configuration.
 
 2. Doctrine content: Creative Commons Attribution 4.0 International
    (CC BY 4.0, see LICENSE-docs)

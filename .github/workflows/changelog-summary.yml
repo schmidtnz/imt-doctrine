@@ -15,14 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-      - run: pip install pyyaml
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - run: uv sync --locked
       # Release pull requests (dispatched) and bots' pull requests have no summary to check.
       - env:
           PR_BODY: ${{ github.event.pull_request.body }}
           SKIP: ${{ github.event_name != 'pull_request' || github.event.pull_request.user.type == 'Bot' }}
         run: |
           if [ "$SKIP" = true ]; then echo "Nothing to check."; exit 0; fi
-          python tools/release.py summary
+          uv run python tools/release.py summary

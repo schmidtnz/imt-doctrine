@@ -36,14 +36,15 @@ Bump `version` when an item's meaning changes. Children written against the olde
 
 ## Build locally
 
+Needs [uv](https://docs.astral.sh/uv/), which installs Python 3.12 and the dependencies on first use.
+
 ```sh
-pip install -r requirements.txt
-pytest -q
-python tools/doctrace.py --root docs
-sphinx-build -W -b html docs docs/_build/html
+uv run pytest -q
+uv run python tools/doctrace.py --root docs
+uv run sphinx-build -W -b html docs docs/_build/html
 ```
 
-`requirements.txt` pins every package so a release can be rebuilt exactly. Change `requirements.in` instead, then run `uv pip compile requirements.in --universal --python-version 3.12 -o requirements.txt`. Dependabot proposes updates monthly.
+`uv.lock` pins every package so a release can be rebuilt exactly. Change dependencies with `uv add` or `uv remove` (`--dev` for test-only ones), which update `pyproject.toml` and the lock together. Dependabot proposes updates monthly.
 
 ## Releasing
 

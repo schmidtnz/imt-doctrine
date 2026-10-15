@@ -6,7 +6,7 @@ description = "LandSAR IMT doctrine, built with Sphinx and checked for traceabil
 requires-python = ">=3.12"
 dependencies = [
     "sphinx>=8,<9",
-    "myst-parser>=4,<5",
+    "myst-parser>=4,<6",
     "furo>=2024.8.6",
     "pyyaml>=6",
 ]

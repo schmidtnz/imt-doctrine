@@ -23,34 +23,46 @@ jobs:
       || (github.event_name == 'pull_request_target' && github.event.action == 'labeled'
         && github.event.label.name == 'preview')
     runs-on: ubuntu-latest
-    concurrency: preview-${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha }}
+    # One queue per branch, so an older build can't overwrite a newer one.
+    concurrency: >-
+      preview-${{ github.event.workflow_run.head_repository.full_name || github.event.pull_request.head.repo.full_name
+      }}-${{ github.event.workflow_run.head_branch || github.event.pull_request.head.ref }}
     env:
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
+      EVENT: ${{ github.event_name }}
       HEAD_SHA: ${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha }}
+      LABELLED_PR: ${{ github.event.pull_request.number }}
       RUN_ID: ${{ github.event.workflow_run.id }}
     steps:
       - uses: actions/checkout@v7
-      # Fork previews are served from this repository's Pages site, so they need a maintainer's
-      # `preview` label first. Branches in this repository and collaborators' forks deploy directly.
+      # Forks need a maintainer's `preview` label per commit; it comes off after each deploy.
       - name: Find pull request and build
         id: find
         run: |
           pr=$(gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" \
             --jq ".[] | select(.head.sha == \"$HEAD_SHA\") | .number")
           pr=${pr%%[[:space:]]*}
-          if [ -z "$pr" ]; then echo "No open pull request at $HEAD_SHA."; exit 0; fi
-          echo "pr=$pr" >> "$GITHUB_OUTPUT"
-          trusted=$(gh api "repos/$REPO/pulls/$pr" --jq "(.head.repo.full_name == \"$REPO\")
-            or (.author_association | IN(\"OWNER\", \"MEMBER\", \"COLLABORATOR\"))
-            or any(.labels[]; .name == \"preview\")")
+          if [ "$EVENT" = pull_request_target ]; then
+            gh api -X DELETE "repos/$REPO/issues/$LABELLED_PR/labels/preview" >/dev/null || true
+            echo "pr=$LABELLED_PR" >> "$GITHUB_OUTPUT"
+            # Moved on since labelling: the new commit needs its own label.
+            if [ "$pr" != "$LABELLED_PR" ]; then echo "trusted=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+            echo "labelled=true" >> "$GITHUB_OUTPUT"
+            trusted=true
+          else
+            if [ -z "$pr" ]; then echo "No open pull request at $HEAD_SHA."; exit 0; fi
+            echo "pr=$pr" >> "$GITHUB_OUTPUT"
+            trusted=$(gh api "repos/$REPO/pulls/$pr" --jq "(.head.repo.full_name == \"$REPO\")
+              or (.author_association | IN(\"OWNER\", \"MEMBER\", \"COLLABORATOR\"))")
+          fi
           echo "trusted=$trusted" >> "$GITHUB_OUTPUT"
           [ "$trusted" = true ] || exit 0
           run=$RUN_ID
           if [ -z "$run" ]; then
             run=$(gh run list -R "$REPO" --workflow ci.yml --commit "$HEAD_SHA" --event pull_request \
               --status completed --json databaseId --jq '.[0].databaseId // empty')
-            if [ -z "$run" ]; then echo "CI is still running; the preview deploys when it finishes."; exit 0; fi
+            if [ -z "$run" ]; then echo "waiting=true" >> "$GITHUB_OUTPUT"; exit 0; fi
           fi
           gh run download "$run" -R "$REPO" -n site -D _preview || { echo "CI built no site."; exit 0; }
           gh run download "$run" -R "$REPO" -n pdf -D _preview && echo "pdf=true" >> "$GITHUB_OUTPUT" || true
@@ -71,6 +83,8 @@ jobs:
           READY: ${{ steps.find.outputs.ready }}
           PDF: ${{ steps.find.outputs.pdf }}
           TRUSTED: ${{ steps.find.outputs.trusted }}
+          LABELLED: ${{ steps.find.outputs.labelled }}
+          WAITING: ${{ steps.find.outputs.waiting }}
         run: |
           {
             echo "body<<EOF"
@@ -78,9 +92,15 @@ jobs:
               echo "**Preview:** $URL"
               [ "$PDF" = true ] && echo "**PDF:** ${URL}imt-doctrine.pdf"
               echo
-              echo "Built from $HEAD_SHA. Updates on each push; removed when this pull request closes."
+              if [ "$LABELLED" = true ]; then
+                echo "Built from $HEAD_SHA. Later pushes need the \`preview\` label again; removed when this pull request closes."
+              else
+                echo "Built from $HEAD_SHA. Updates on each push; removed when this pull request closes."
+              fi
+            elif [ "$WAITING" = true ]; then
+              echo "CI hasn't finished for $HEAD_SHA yet. Add the \`preview\` label again once it has."
             elif [ "$TRUSTED" != true ]; then
-              echo "No preview yet: this pull request comes from a fork. A maintainer can add the \`preview\` label to publish one."
+              echo "No preview of the latest commit: this pull request comes from a fork. A maintainer can add the \`preview\` label to publish it."
             fi
             echo "EOF"
           } >> "$GITHUB_OUTPUT"

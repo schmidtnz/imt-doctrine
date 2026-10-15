@@ -4,8 +4,6 @@ on:
   pull_request:
   push:
     branches: [main]
-  # Prepare release dispatches this on the release branch, whose pull request can't trigger it.
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -46,7 +44,7 @@ jobs:
         with:
           fetch-depth: 0
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
-      - run: uv sync --locked
+      - run: uv sync --locked --no-dev
       - uses: ./.github/actions/latex
       - run: uv run sphinx-build -M latexpdf docs docs/_build
       - uses: actions/upload-artifact@v7

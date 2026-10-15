@@ -1,10 +1,12 @@
 """Unit tests for the release tooling."""
 import datetime as dt
+import json
 import subprocess
 import sys
 import tempfile
 import textwrap
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -145,6 +147,27 @@ class SummaryTests(unittest.TestCase):
         self.assertEqual(release.group_for(["docs/part-2/a.md", "docs/forms/f.md"], owned), "Doctrine")
         self.assertEqual(release.group_for(["docs/forms/f.md"], owned), "Guidance and forms")
         self.assertEqual(release.group_for(["tools/x.py", "docs/changelog.md"], owned), "Site and tooling")
+        self.assertEqual(release.group_for(["docs/licence.md", "docs/contributors.md"], owned), "Site and tooling")
+        owned = lambda p: p == "docs/glossary.md"  # noqa: E731
+        self.assertEqual(release.group_for(["docs/glossary.md"], owned), "Doctrine")
+
+    def test_github_prs_fetches_commits_only_for_merged_in_range(self):
+        listed = [{"number": 1, "mergeCommit": {"oid": "a"}}, {"number": 2, "mergeCommit": {"oid": "old"}},
+                  {"number": 3, "mergeCommit": None}]
+        calls = []
+
+        def gh(args, **kwargs):
+            calls.append(args)
+            if args[1:3] == ["pr", "list"]:
+                self.assertNotIn("commits", args[-1].split(","))
+                return json.dumps(listed)
+            return json.dumps({"commits": [{"authors": [{"login": "amy"}]}]})
+
+        with mock.patch.object(release.subprocess, "check_output", gh):
+            prs = release.github_prs("o/r", "main", {"a"})
+        self.assertEqual([(p["number"], p["commits"]) for p in prs], [(1, [{"authors": [{"login": "amy"}]}])])
+        self.assertEqual(calls[1], ["gh", "pr", "view", "1", "-R", "o/r", "--json", "commits"])
+        self.assertEqual(len(calls), 2)
 
     def test_entries_from(self):
         commits = [{"authors": [{"login": "amy", "name": "amy-git"}, {"login": "ben", "name": "b"}]},
@@ -276,7 +299,7 @@ class PrepareTests(unittest.TestCase):
         return self.git("rev-parse", "HEAD").strip()
 
     def prepare(self, prs, channel="final", bump="auto"):
-        return release.prepare(self.root, channel, bump, "o/r", TODAY, lambda: prs, {"amy": "Amy Ng"}.get)
+        return release.prepare(self.root, channel, bump, "o/r", TODAY, lambda shas: prs, {"amy": "Amy Ng"}.get)
 
     def test_guidance_change_is_minor_with_entries(self):
         write(self.root, "docs/part-3/con-01.md",

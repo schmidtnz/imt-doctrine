@@ -50,7 +50,7 @@ uv run sphinx-build -W -b html docs docs/_build/html
 
 1. Every pull request ends with a **Changelog summary**: a sentence or two for readers, or "none". Reviewers can reword it before merging.
 2. When it's time for a release, a doctrine owner runs **Actions → Prepare release** and picks final, rc (release candidate for consultation) or demo. It works out the version and opens a "Release vX.Y.Z" pull request that adds the changelog section. Each entry credits its pull request's author, and the section lists everyone who wrote or co-wrote a change, by their GitHub profile name or else their handle. Newcomers are added to the overall `docs/contributors.md` page, which also takes people added by hand.
-3. Reword the section in that pull request if needed, then approve and merge. **Release** builds the site and PDF, then creates the tag and the GitHub release.
+3. Reword the section in that pull request if needed, then approve and merge. **Release** builds the site and PDF, creates the tag and the GitHub release, then republishes the site so it shows the new version.
 
 | Since the last release | Version |
 |---|---|
@@ -62,8 +62,9 @@ Before 1.0.0 each row moves down one step. You can choose a higher bump but neve
 
 ## First-time setup
 
-1. Push `main`, then run `tools/setup-repo.sh` (needs `gh` with admin rights). It turns on auto-merge and Discussions, adds the ruleset and enables Pages from the `gh-pages` branch.
-2. Publish the release waiting in the changelog: **Actions → Release → Run workflow**. After that, use Prepare release.
+1. Push `main`, then run `tools/setup-repo.sh` (needs `gh` with admin rights; safe to run again). It turns on auto-merge and Discussions, makes the Actions token read-only, adds the `preview` label and the ruleset, and enables Pages from the `gh-pages` branch.
+2. Create a GitHub App for releases (no webhook; *Contents* and *Pull requests* read and write), install it on this repository, then run `gh variable set RELEASE_APP_CLIENT_ID --body <client-id>` and `gh secret set RELEASE_APP_KEY < key.pem`.
+3. Publish the release waiting in the changelog: **Actions → Release → Run workflow**. After that, use Prepare release.
 
 While the repository is private on GitHub Free, rulesets and Pages are unavailable. CI still runs, and each run's built site is downloadable as the `site` artifact. Both work once the repository is public (or on GitHub Pro).
 

@@ -17,10 +17,10 @@ on:
         options: [auto, patch, minor, major]
         default: auto
 
+# The release app opens the pull request, so its checks run and Actions can't approve PRs.
 permissions:
-  actions: write
-  contents: write
-  pull-requests: write
+  contents: read
+  pull-requests: read
 
 concurrency: prepare-release
 
@@ -31,22 +31,42 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+      - name: Check the release app is set up
+        env:
+          CLIENT_ID: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          HAS_KEY: ${{ secrets.RELEASE_APP_KEY != '' }}
+        run: |
+          if [ -z "$CLIENT_ID" ] || [ "$HAS_KEY" != true ]; then
+            echo "::error::Set the RELEASE_APP_CLIENT_ID variable and RELEASE_APP_KEY secret: see README, First-time setup."
+            exit 1
+          fi
+      - id: app
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          token: ${{ steps.app.outputs.token }}
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
-      - run: uv sync --locked
+      - run: uv sync --locked --no-dev
       - id: prepare
         env:
           CHANNEL: ${{ inputs.channel }}
           BUMP: ${{ inputs.bump }}
+          TZ: Pacific/Auckland  # NZ changelog dates
         run: uv run python tools/release.py prepare --channel "$CHANNEL" --bump "$BUMP" --body "$RUNNER_TEMP/body.md"
       - name: Open release pull request
         env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          BOT: ${{ steps.app.outputs.app-slug }}[bot]
           VERSION: ${{ steps.prepare.outputs.version }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "$BOT"
+          git config user.email "$(gh api "users/$BOT" --jq .id)+$BOT@users.noreply.github.com"
           git switch -C release/next
           git add docs/changelog.md docs/contributors.md
           git commit -qm "chore: release $VERSION"
@@ -57,7 +77,3 @@ jobs:
           else
             gh pr create --head release/next --base main --title "Release $VERSION" --body-file "$RUNNER_TEMP/body.md"
           fi
-          # Pull requests opened with GITHUB_TOKEN don't trigger pull_request workflows, so run the
-          # required checks directly.
-          gh workflow run ci.yml --ref release/next
-          gh workflow run changelog-summary.yml --ref release/next

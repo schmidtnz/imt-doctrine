@@ -30,7 +30,7 @@ jobs:
       HEAD_SHA: ${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha }}
       RUN_ID: ${{ github.event.workflow_run.id }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       # Fork previews are served from this repository's Pages site, so they need a maintainer's
       # `preview` label first. Branches in this repository and collaborators' forks deploy directly.
       - name: Find pull request and build
@@ -96,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: preview-remove-${{ github.event.number }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
         with:
           action: remove

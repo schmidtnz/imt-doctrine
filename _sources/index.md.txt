@@ -4,7 +4,11 @@
 **Demonstration repository.** This site shows how the {{ org }} IMT doctrine could be written, reviewed and published from Git. Structure follows the draft; text is short illustrative placeholder content, not agreed doctrine.
 :::
 
-**Cite as:** IMT Doctrine, version {{ release }}. <a href="imt-doctrine.pdf">Download this version as a PDF</a>.
+**Cite as:** IMT Doctrine, version {{ release }}.
+
+:::{only} html
+<a href="imt-doctrine.pdf">Download this version as a PDF</a>.
+:::
 
 ```{toctree}
 :maxdepth: 2

@@ -62,6 +62,7 @@ jobs:
           mkdir dist
           cp docs/_build/latex/imt-doctrine.pdf "dist/imt-doctrine-${DOCS_VERSION}.pdf"
           cp docs/_build/latex/imt-doctrine.pdf dist/imt-doctrine.pdf
+          cp docs/_build/latex/imt-doctrine.pdf docs/_build/html/
           (cd docs/_build/html && zip -qr "$GITHUB_WORKSPACE/dist/imt-doctrine-${DOCS_VERSION}-html.zip" .)
           (cd dist && sha256sum -- * > SHA256SUMS)
       # Lets anyone check a PDF came from this repository's release build. Needs a public repository.

@@ -4,8 +4,6 @@ on:
   pull_request:
   push:
     branches: [main]
-  # Prepare release dispatches this on the release branch, whose pull request can't trigger it.
-  workflow_dispatch:
 
 permissions:
   contents: read

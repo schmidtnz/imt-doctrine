@@ -27,7 +27,7 @@ jobs:
         with:
           fetch-depth: 0
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
-      - run: uv sync --locked
+      - run: uv sync --locked --no-dev
       - id: pending
         run: uv run python tools/release.py pending
 
@@ -47,7 +47,7 @@ jobs:
         with:
           fetch-depth: 0
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
-      - run: uv sync --locked
+      - run: uv sync --locked --no-dev
       - uses: ./.github/actions/latex
       - run: uv run sphinx-build -W --keep-going -b html docs docs/_build/html
       - run: uv run sphinx-build -M latexpdf docs docs/_build

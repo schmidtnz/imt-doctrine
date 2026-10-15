@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Repository settings; needs gh with admin rights and is safe to rerun.
 set -euo pipefail
+# --solo: pull requests need passing checks but no approval, for a lone maintainer.
+solo=false
+[ "${1:-}" = --solo ] && { solo=true; shift; }
 repo="${1:-schmidtnz/imt-doctrine}"
 dir="$(dirname "$0")/../.github"
 failed=0
@@ -20,6 +23,11 @@ for file in "$dir/rulesets/main.json" "$dir/rulesets/tags.json"; do
     warn "Ruleset '$name' skipped: set the RELEASE_APP_ID variable first."; continue
   fi
   body=$(sed "s/\"RELEASE_APP_ID\"/$app_id/" "$file")
+  if $solo; then
+    body=$(echo "$body" | sed -e 's/"required_approving_review_count": 1/"required_approving_review_count": 0/' \
+      -e 's/"require_code_owner_review": true/"require_code_owner_review": false/' \
+      -e 's/"require_last_push_approval": true/"require_last_push_approval": false/')
+  fi
   id=$(gh api "repos/$repo/rulesets?includes_parents=false" --jq ".[] | select(.name == \"$name\") | .id") || id=""
   if [ -n "$id" ]; then
     out=$(echo "$body" | gh api -X PUT "repos/$repo/rulesets/$id" --input - 2>&1) || warn "Ruleset '$name' not updated: $out"

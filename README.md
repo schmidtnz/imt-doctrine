@@ -68,6 +68,8 @@ Before 1.0.0 each row moves down one step. You can choose a higher bump but neve
 
 While the repository is private on GitHub Free, rulesets and Pages are unavailable. CI still runs, and each run's built site is downloadable as the `site` artifact. Both work once the repository is public (or on GitHub Pro).
 
+While you're the only maintainer, run `tools/setup-repo.sh --solo`: pull requests then need passing checks but no approval. Run it again without `--solo` once reviewers join.
+
 When the repository moves to an organisation, replace `@schmidtnz` in `CODEOWNERS` with the review group's team.
 
 ## Licence

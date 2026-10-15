@@ -62,8 +62,8 @@ Before 1.0.0 each row moves down one step. You can choose a higher bump but neve
 
 ## First-time setup
 
-1. Push `main`, then run `tools/setup-repo.sh` (needs `gh` with admin rights; safe to run again). It turns on auto-merge and Discussions, makes the Actions token read-only, adds the `preview` label and the ruleset, and enables Pages from the `gh-pages` branch.
-2. Create a GitHub App for releases (no webhook; *Contents* and *Pull requests* read and write), install it on this repository, then run `gh variable set RELEASE_APP_CLIENT_ID --body <client-id>` and `gh secret set RELEASE_APP_KEY < key.pem`.
+1. Create a GitHub App for releases (no webhook; *Contents* and *Pull requests* read and write) and install it on this repository. From its settings page, run `gh variable set RELEASE_APP_ID --body <app-id>`, `gh variable set RELEASE_APP_CLIENT_ID --body <client-id>` and `gh secret set RELEASE_APP_KEY < key.pem`.
+2. Push `main`, then run `tools/setup-repo.sh` (needs `gh` with admin rights; safe to run again). It turns on auto-merge and Discussions, makes the Actions token read-only, adds the `preview` label and the rulesets (only admins and the release app may change `v*` tags), turns on immutable releases and enables Pages from the `gh-pages` branch.
 3. Publish the release waiting in the changelog: **Actions → Release → Run workflow**. After that, use Prepare release.
 
 While the repository is private on GitHub Free, rulesets and Pages are unavailable. CI still runs, and each run's built site is downloadable as the `site` artifact. Both work once the repository is public (or on GitHub Pro).

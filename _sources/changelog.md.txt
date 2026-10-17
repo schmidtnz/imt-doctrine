@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.2.1-demo — 2026-10-17
+
+### Guidance and forms
+
+- Added a Figures page with diagrams of the doctrine levels, the phases of an operation, the Bike Wheel model and the extended search planning cycle, plus two logos as examples of raster images. ([#13](https://github.com/schmidtnz/imt-doctrine/pull/13), [Tobias Schmidt](https://github.com/schmidtnz))
+
+### Site and tooling
+
+- Each pull request now gets a comment showing how it changes traceability, and each release records its traceability totals. ([#14](https://github.com/schmidtnz/imt-doctrine/pull/14), [Tobias Schmidt](https://github.com/schmidtnz))
+- The release pull request now updates itself after every merge, so it always shows what the next release will contain. ([#17](https://github.com/schmidtnz/imt-doctrine/pull/17), [Tobias Schmidt](https://github.com/schmidtnz))
+
+### Needs review
+
+- **CON-02** written against PRN-13 v1; PRN-13 is now v2
+
+Traceability at release: 1 warning, 1 stale, 1 overdue.
+
+Contributors: [Tobias Schmidt](https://github.com/schmidtnz)
+
 ## v0.2.0-demo
 
 - Condensed content from draft v0.1 for Parts 1, 2, 3.1 and 3.3–3.6: 15 principles, 17 concepts, 6 guidelines, 3 processes and 3 forms, numbered as in the draft.

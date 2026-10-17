@@ -76,7 +76,7 @@ While the repository is private on GitHub Free, rulesets and Pages are unavailab
 
 While you're the only maintainer, run `tools/setup-repo.sh --solo`: pull requests then need passing checks but no approval. Run it again without `--solo` once reviewers join.
 
-Releases published before the site kept versions can be added with **Actions → Add a release to the site**, oldest first; they appear in the version menu but don't show it themselves.
+Releases published before the site kept versions can be added with **Actions → Add a release to the site**, oldest first. It adds the version menu to their pages; their release zips stay as published.
 
 When the repository moves to an organisation, replace `@schmidtnz` in `CODEOWNERS` with the review group's team.
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -88,6 +89,28 @@ def write_root(out: Path, versions: list[Version], base: str) -> None:
     (out / ".nojekyll").write_text("", encoding="utf-8")
 
 
+MENU_FILES = ("versions.js", "versions.css")
+
+
+def add_menu(site: Path, static: Path) -> int:
+    """Add the version menu to a build made before it existed; returns the number of pages changed."""
+    if (site / "_static" / MENU_FILES[0]).exists():
+        return 0
+    for name in MENU_FILES:
+        shutil.copyfile(static / name, site / "_static" / name)
+    changed = 0
+    for page in sorted(site.rglob("*.html")):
+        up = "../" * (len(page.relative_to(site).parts) - 1)
+        text = page.read_bytes().decode("utf-8")
+        if "</head>" not in text:
+            continue
+        tags = (f'<link rel="stylesheet" href="{up}_static/versions.css">\n'
+                f'<script defer src="{up}_static/versions.js"></script>\n')
+        page.write_bytes(text.replace("</head>", tags + "</head>", 1).encode("utf-8"))
+        changed += 1
+    return changed
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--top", type=Path, default=Path(__file__).resolve().parents[1])
@@ -98,7 +121,14 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--base-path", help="URL path of the site (default from GITHUB_REPOSITORY)")
     i = sub.add_parser("is-latest", help="print true if VERSION should also be published as latest/")
     i.add_argument("version")
+    m = sub.add_parser("add-menu", help="add the version menu to an older build that lacks it")
+    m.add_argument("site", type=Path)
     args = ap.parse_args(argv)
+
+    if args.cmd == "add-menu":
+        changed = add_menu(args.site, args.top / "docs" / "_static")
+        print(f"Version menu added to {changed} pages." if changed else "Build already has the version menu.")
+        return 0
 
     versions = versions_in(folders_at(args.pages_ref, args.top))
     if args.cmd == "is-latest":

@@ -2,6 +2,8 @@
 
 A working demonstration of writing, reviewing and publishing land SAR IMT doctrine from Git. The structure and numbering follow draft v0.1 (Parts 1–3, forms). The text is condensed from the draft for illustration and is not agreed doctrine.
 
+**Read it:** <https://schmidtnz.github.io/imt-doctrine/> (latest from `main`, with a [PDF](https://schmidtnz.github.io/imt-doctrine/imt-doctrine.pdf)). To suggest a change, use "Edit this page" on any page; GitHub opens a pull request for you.
+
 ## What it shows
 
 | Feature | Where |

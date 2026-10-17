@@ -1,10 +1,10 @@
 # IMT Doctrine (demonstration)
 
-[![CI](https://github.com/schmidtnz/imt-doctrine/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/schmidtnz/imt-doctrine/actions/workflows/ci.yml?query=branch%3Amain) [![Traceability](https://img.shields.io/endpoint?url=https%3A%2F%2Fschmidtnz.github.io%2Fimt-doctrine%2Ftraceability.json)](https://schmidtnz.github.io/imt-doctrine/status/traceability.html) [![Release](https://img.shields.io/github/v/release/schmidtnz/imt-doctrine?include_prereleases)](https://github.com/schmidtnz/imt-doctrine/releases)
+[![CI](https://github.com/schmidtnz/imt-doctrine/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/schmidtnz/imt-doctrine/actions/workflows/ci.yml?query=branch%3Amain) [![Traceability](https://img.shields.io/endpoint?url=https%3A%2F%2Fschmidtnz.github.io%2Fimt-doctrine%2Fnext%2Ftraceability.json&label=traceability%20(next))](https://schmidtnz.github.io/imt-doctrine/next/status/traceability.html) [![Release](https://img.shields.io/github/v/release/schmidtnz/imt-doctrine?include_prereleases)](https://github.com/schmidtnz/imt-doctrine/releases)
 
 A working demonstration of writing, reviewing and publishing land SAR IMT doctrine from Git. The structure and numbering follow draft v0.1 (Parts 1–3, forms). The text is condensed from the draft for illustration and is not agreed doctrine.
 
-**Read it:** <https://schmidtnz.github.io/imt-doctrine/> (latest from `main`, with a [PDF](https://schmidtnz.github.io/imt-doctrine/imt-doctrine.pdf)). To suggest a change, use "Edit this page" on any page; GitHub opens a pull request for you.
+**Read it:** <https://schmidtnz.github.io/imt-doctrine/latest/> (the latest release, with a [PDF](https://schmidtnz.github.io/imt-doctrine/latest/imt-doctrine.pdf)). The working draft from `main` is at [`next/`](https://schmidtnz.github.io/imt-doctrine/next/), and every release stays at its own address, such as `v0.2.1-demo/`. To suggest a change, use "Edit this page" on any page; GitHub opens a pull request for you.
 
 ## What it shows
 
@@ -16,6 +16,7 @@ A working demonstration of writing, reviewing and publishing land SAR IMT doctri
 | Say it once: shared snippet (POD scale), glossary, organisation-name substitution | `docs/_snippets/`, `docs/glossary.md`, `docs/conf.py` |
 | Figures: SVG diagrams converted to PDF for the printed version, PNG and JPG used as they are; numbered and cross-referenced | `docs/figures/` |
 | Releases: version worked out from item changes, changelog from pull request summaries, PDF, zipped HTML and checksums | `tools/release.py`, `.github/workflows/prepare-release.yml`, `release.yml` |
+| Versioned site: `latest/` (newest release), `next/` (working draft from `main`) and a folder per release, with a version menu and an old-version banner | `tools/site_index.py`, `docs/_static/versions.js`, `publish.yml`, `release.yml` |
 | PR previews with PDF (forks too), link checking, monthly review-date issue | `.github/workflows/` |
 
 The demo content deliberately contains one stale item (CON-02), one coverage gap (PRN-15) and one overdue review (GDL-04), so the status page has something to show.
@@ -55,7 +56,7 @@ uv run sphinx-build -W -b html docs docs/_build/html
 
 1. Every pull request ends with a **Changelog summary**: a sentence or two for readers, or "none". Reviewers can reword it before merging.
 2. After each merge to `main`, **Prepare release** keeps one "Release vX.Y.Z" pull request up to date. It works out the version and writes the changelog section. Each entry credits its pull request's author, and the section lists everyone who wrote or co-wrote a change, by their GitHub profile name or else their handle. Newcomers are added to the overall `docs/contributors.md` page, which also takes people added by hand. Automatic runs use the `RELEASE_CHANNEL` repository variable (default demo) and open a pull request only when there is something for the changelog. To choose final, rc (release candidate for consultation) or a higher bump, a doctrine owner runs **Actions → Prepare release** by hand; later merges keep that choice.
-3. Reword the section in that pull request if needed, then approve and merge. The next merge to `main` rebuilds the section, so reword just before merging. **Release** builds the site and PDF, creates the tag and the GitHub release, then republishes the site so it shows the new version.
+3. Reword the section in that pull request if needed, then approve and merge. The next merge to `main` rebuilds the section, so reword just before merging. **Release** builds the site and PDF, creates the tag and the GitHub release, and publishes the site in the version's own folder, and in `latest/` when it is the newest final release (or, before the first final, the newest release). `next/` always shows `main`.
 
 | Since the last release | Version |
 |---|---|
@@ -74,6 +75,8 @@ Before 1.0.0 each row moves down one step. You can choose a higher bump but neve
 While the repository is private on GitHub Free, rulesets and Pages are unavailable. CI still runs, and each run's built site is downloadable as the `site` artifact. Both work once the repository is public (or on GitHub Pro).
 
 While you're the only maintainer, run `tools/setup-repo.sh --solo`: pull requests then need passing checks but no approval. Run it again without `--solo` once reviewers join.
+
+Releases published before the site kept versions can be added with **Actions → Add a release to the site**, oldest first; they appear in the version menu but don't show it themselves.
 
 When the repository moves to an organisation, replace `@schmidtnz` in `CODEOWNERS` with the review group's team.
 

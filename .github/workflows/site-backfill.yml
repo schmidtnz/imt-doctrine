@@ -1,0 +1,52 @@
+name: Add a release to the site
+
+# Puts an earlier release's HTML, from the zip attached to its GitHub release, in its own folder on
+# the site, for releases published before the site kept versions. Run it oldest release first.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release tag, for example v0.2.0-demo
+        required: true
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: site-backfill
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - run: uv sync --locked --no-dev
+      - id: site
+        run: |
+          latest=$(uv run python tools/site_index.py is-latest "$VERSION")
+          gh release download "$VERSION" -p "imt-doctrine-$VERSION-html.zip" -D _zip
+          unzip -q "_zip/imt-doctrine-$VERSION-html.zip" -d _site
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+      - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          folder: _site
+          branch: gh-pages
+          target-folder: ${{ inputs.version }}
+          force: false
+      - if: steps.site.outputs.latest == 'true'
+        uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          folder: _site
+          branch: gh-pages
+          target-folder: latest
+          force: false
+      # Rebuilds the site root so the version list includes it.
+      - run: gh workflow run publish.yml --ref main

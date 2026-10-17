@@ -8,22 +8,43 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent / "_ext"))
 
 
-def _release() -> str:
+def _label(described: str) -> tuple[str, str]:
+    """Readable version and commit from `git describe --tags --long --always --dirty`.
+
+    v0.2.2-demo-0-gabc1234 gives ("v0.2.2-demo", ""), v0.2.2-demo-3-gabc1234 gives
+    ("v0.2.2-demo + 3 changes", "abc1234"), and uncommitted edits add ", modified".
+    """
+    modified = described.endswith("-dirty")
+    described = described.removesuffix("-dirty")
+    m = re.fullmatch(r"(.+)-(\d+)-g([0-9a-f]+)", described)
+    if m:
+        tag, count, commit = m.group(1), int(m.group(2)), m.group(3)
+        label = f"{tag} + {count} change{'' if count == 1 else 's'}" if count else tag
+    else:  # no tags yet, so describe gives only the commit
+        count, commit, label = None, described, "unreleased"
+    released = count == 0 and not modified
+    if modified:
+        label += ", modified"
+    return label, "" if released else commit
+
+
+def _release() -> tuple[str, str]:
     # Tag builds set DOCS_VERSION; otherwise describe the checkout.
     if os.environ.get("DOCS_VERSION"):
-        return os.environ["DOCS_VERSION"]
+        return os.environ["DOCS_VERSION"], ""
     try:
-        return subprocess.check_output(
-            ["git", "describe", "--tags", "--always", "--dirty"],
+        return _label(subprocess.check_output(
+            ["git", "describe", "--tags", "--long", "--always", "--dirty"],
             text=True, stderr=subprocess.DEVNULL,
-        ).strip()
+        ).strip())
     except Exception:
-        return "dev"
+        return "dev", ""
 
 
 project = "IMT Doctrine"
 author = "Doctrine working group"
-release = version = _release()
+release, commit = _release()
+version = release
 
 # rsvgconverter turns SVG figures into PDF for the LaTeX build (needs rsvg-convert).
 extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.rsvgconverter", "traceability"]
@@ -35,6 +56,7 @@ myst_substitutions = {
     "org": "LandSAR",
     "org_full": "Land Search and Rescue New Zealand",
     "release": release,
+    "cite_version": f"{release} (commit {commit})" if commit else release,
 }
 
 exclude_patterns = ["_build", "_snippets", "Thumbs.db", ".DS_Store"]

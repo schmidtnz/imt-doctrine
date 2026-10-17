@@ -182,6 +182,7 @@ class GitTests(Base):
             self.git("config", "user.email", "t@example.org")
             self.git("config", "user.name", "t")
             self.git("config", "commit.gpgsign", "false")
+            self.git("config", "maintenance.auto", "false")
         self.git("add", ".")
         self.git("commit", "-qm", "base")
 

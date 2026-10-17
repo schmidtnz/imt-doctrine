@@ -47,7 +47,8 @@ class CliTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         for args in (["init", "-q", "-b", "gh-pages"], ["config", "user.email", "t@example.org"],
-                     ["config", "user.name", "t"], ["config", "commit.gpgsign", "false"]):
+                     ["config", "user.name", "t"], ["config", "commit.gpgsign", "false"],
+                     ["config", "maintenance.auto", "false"]):
             self.git(*args)
         for folder in ("next", "v0.2.0-demo", "pr-preview"):
             (self.root / folder).mkdir()

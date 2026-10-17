@@ -279,7 +279,8 @@ class PrepareTests(unittest.TestCase):
         self.root = Path(self.tmp.name)
         for args in (["init", "-q", "-b", "main"], ["config", "user.email", "t@example.org"],
                      ["config", "user.name", "t"], ["config", "commit.gpgsign", "false"],
-                     ["config", "tag.gpgsign", "false"]):
+                     # Background maintenance after commits can race the temp dir cleanup.
+                     ["config", "tag.gpgsign", "false"], ["config", "maintenance.auto", "false"]):
             self.git(*args)
         (self.root / ".github").mkdir()
         (self.root / ".github" / "CODEOWNERS").write_text("/docs/part-2/ @owner\n", encoding="utf-8")

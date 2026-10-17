@@ -9,6 +9,7 @@
 ### Site and tooling
 
 - Each pull request now gets a comment showing how it changes traceability, and each release records its traceability totals. ([#14](https://github.com/schmidtnz/imt-doctrine/pull/14), [Tobias Schmidt](https://github.com/schmidtnz))
+- The release pull request now updates itself after every merge, so it always shows what the next release will contain. ([#17](https://github.com/schmidtnz/imt-doctrine/pull/17), [Tobias Schmidt](https://github.com/schmidtnz))
 
 ### Needs review
 

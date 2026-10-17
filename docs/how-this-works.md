@@ -28,6 +28,19 @@ last_reviewed: 2026-10-01
 
 Allowed links run down the hierarchy: principle → concept → guideline → process → form. A guideline can't derive straight from a principle.
 
+```mermaid
+flowchart LR
+  accTitle: Item hierarchy
+  accDescr: Principles lead to concepts, concepts to guidelines, guidelines to processes and processes to forms. Principles and concepts are in the doctrine tier; guidelines, processes and forms are in the guidance tier.
+  subgraph Doctrine
+    PRN[Principle] --> CON[Concept]
+  end
+  subgraph Guidance
+    GDL[Guideline] --> PRC[Process] --> FRM[Form]
+  end
+  CON --> GDL
+```
+
 When an item's meaning changes, its author bumps `version`. Every child written against the old version is then listed as **stale** on the {doc}`status/traceability` page until someone checks it and updates its `derives_from` number. The tooling confirms that someone *looked*; it can't judge whether the child is still right.
 
 ## Checks on every change

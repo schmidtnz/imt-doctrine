@@ -26,10 +26,13 @@ author = "Doctrine working group"
 release = version = _release()
 
 # rsvgconverter turns SVG figures into PDF for the LaTeX build (needs rsvg-convert).
-extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.rsvgconverter", "traceability"]
+extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.rsvgconverter",
+              "sphinxcontrib.mermaid", "traceability"]
 numfig = True
 numfig_format = {"figure": "Figure %s"}
 myst_enable_extensions = ["colon_fence", "deflist", "substitution", "tasklist"]
+# Plain ```mermaid fences, so diagrams also render in GitHub's Markdown preview.
+myst_fence_as_directive = ["mermaid"]
 myst_heading_anchors = 3
 myst_substitutions = {
     "org": "LandSAR",
@@ -49,6 +52,10 @@ html_theme_options = {
     "source_branch": "main",
     "source_directory": "docs/",
 }
+
+# Size diagrams to fit; the PDF build draws them with mmdc, cropped by --pdfFit.
+mermaid_height = "auto"
+mermaid_params = ["--pdfFit"]
 
 latex_engine = "xelatex"
 

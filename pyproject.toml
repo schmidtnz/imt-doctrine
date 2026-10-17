@@ -10,6 +10,7 @@ dependencies = [
     "furo>=2024.8.6",
     "pyyaml>=6",
     "sphinxcontrib-svg2pdfconverter>=2",
+    "sphinxcontrib-mermaid>=2",
 ]
 
 [dependency-groups]

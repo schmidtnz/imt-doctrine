@@ -49,7 +49,9 @@ jobs:
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
       - run: uv sync --locked --no-dev
       - uses: ./.github/actions/latex
-      - run: uv run sphinx-build -W --keep-going -b html docs docs/_build/html
+      - run: |
+          uv run sphinx-build -W --keep-going -b html docs docs/_build/html
+          uv run python tools/doctrace.py --root docs --badge docs/_build/html/traceability.json
       - run: uv run sphinx-build -M latexpdf docs docs/_build
       # imt-doctrine.pdf keeps one name across releases, so
       # https://github.com/<repo>/releases/latest/download/imt-doctrine.pdf always gets the latest final.
@@ -84,7 +86,28 @@ jobs:
           gh release create "$DOCS_VERSION" dist/* --draft --target "$GITHUB_SHA" \
             --title "IMT Doctrine $DOCS_VERSION" --notes-file notes.md $flags
           gh release edit "$DOCS_VERSION" --draft=false
-      # Rebuild the site now the tag exists, so it shows this version, and open the next release
+      # The release keeps its own folder on the site. latest/ shows the newest final release, or the
+      # newest of any kind until there is one.
+      - id: site
+        run: |
+          git fetch -q origin gh-pages || true
+          echo "latest=$(uv run python tools/site_index.py is-latest "$DOCS_VERSION")" >> "$GITHUB_OUTPUT"
+      - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          folder: docs/_build/html
+          branch: gh-pages
+          target-folder: ${{ env.DOCS_VERSION }}
+          token: ${{ steps.app.outputs.token }}
+          force: false
+      - if: steps.site.outputs.latest == 'true'
+        uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          folder: docs/_build/html
+          branch: gh-pages
+          target-folder: latest
+          token: ${{ steps.app.outputs.token }}
+          force: false
+      # Rebuild next/ and the site root (version list) now the tag exists, and open the next release
       # pull request if anything merged while this release was being built.
       - env:
           GH_TOKEN: ${{ github.token }}

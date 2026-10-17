@@ -30,10 +30,25 @@ jobs:
       - run: |
           uv run sphinx-build -M latexpdf docs docs/_build
           cp docs/_build/latex/imt-doctrine.pdf docs/_build/html/
-      # Keeps PR previews in pr-preview/ when the main site is replaced.
+      # main is the working draft, at next/.
       - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
         with:
           folder: docs/_build/html
           branch: gh-pages
-          clean-exclude: pr-preview/
+          target-folder: next
+          force: false
+      # Root: versions.json for the version menu, and redirects to latest/ (next/ before the first
+      # release). Release folders and previews are left alone.
+      - run: |
+          git fetch -q origin gh-pages
+          uv run python tools/site_index.py root --out _root
+      - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          folder: _root
+          branch: gh-pages
+          clean-exclude: |
+            next/
+            latest/
+            v*/
+            pr-preview/
           force: false

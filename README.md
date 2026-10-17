@@ -77,11 +77,15 @@ While you're the only maintainer, run `tools/setup-repo.sh --solo`: pull request
 
 When the repository moves to an organisation, replace `@schmidtnz` in `CODEOWNERS` with the review group's team.
 
+### Read the Docs (trial)
+
+`.readthedocs.yaml` builds the same site on Read the Docs, alongside GitHub Pages. Sign in at <https://app.readthedocs.org> with GitHub and import this repository. It then builds `main` as "latest", HTML and PDF for each tag you activate under *Versions*, and an HTML-only preview for each pull request. The GitHub workflows still publish the site, PDF previews and releases.
+
 ## Licence
 
 | Material | Licence |
 |---|---|
-| Code and configuration (`tools/`, `tests/`, `docs/_ext/`, `docs/_static/`, `docs/conf.py`, `.github/`) | [MIT](LICENSE) |
+| Code and configuration (`tools/`, `tests/`, `docs/_ext/`, `docs/_static/`, `docs/conf.py`, `.github/`, `.readthedocs.yaml`) | [MIT](LICENSE) |
 | Doctrine content (everything else under `docs/`) | [CC BY 4.0](LICENSE-docs), pending confirmation by LandSAR |
 
 The doctrine text is condensed from LandSAR's draft v0.1 and remains LandSAR's copyright. Until LandSAR confirms CC BY 4.0, the content is all rights reserved and shared for review only. Only doctrine published by LandSAR is authoritative; adapted copies must not present themselves as official. Third-party figures and forms are not covered by CC BY 4.0. See [NOTICE](NOTICE) for details.

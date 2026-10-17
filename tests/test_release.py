@@ -303,8 +303,14 @@ class PrepareTests(unittest.TestCase):
         self.git("commit", "-qm", message)
         return self.git("rev-parse", "HEAD").strip()
 
-    def prepare(self, prs, channel="final", bump="auto"):
-        return release.prepare(self.root, channel, bump, "o/r", TODAY, lambda shas: prs, {"amy": "Amy Ng"}.get)
+    def prepare(self, prs, channel="final", bump="auto", **kwargs):
+        return release.prepare(self.root, channel, bump, "o/r", TODAY, lambda shas: prs, {"amy": "Amy Ng"}.get,
+                               **kwargs)
+
+    def pr(self, sha, summary="Clarifies hazards."):
+        return {"number": 7, "title": "Concept", "body": f"## Changelog summary\n{summary}",
+                "author": {"login": "amy"}, "mergeCommit": {"oid": sha},
+                "files": [{"path": "docs/part-3/notes.md"}], "headRefName": "edit"}
 
     def test_guidance_change_is_minor_with_entries(self):
         write(self.root, "docs/part-3/con-01.md",
@@ -329,6 +335,26 @@ class PrepareTests(unittest.TestCase):
     def test_nothing_to_release(self):
         with self.assertRaises(release.ReleaseError):
             self.prepare([])
+        with self.assertRaises(release.NothingToRelease):
+            self.prepare([], skip_empty=True)
+
+    def test_skip_empty_needs_a_summary_or_item_change(self):
+        (self.root / "docs" / "part-3" / "notes.md").write_text("# Notes\n", encoding="utf-8")
+        sha = self.commit("page")
+        with self.assertRaises(release.NothingToRelease):
+            self.prepare([self.pr(sha, summary="none")], skip_empty=True)
+        self.assertEqual(str(self.prepare([self.pr(sha)], skip_empty=True)[0]), "v1.0.1")
+
+    def test_keep_carries_open_release_channel_and_higher_bump(self):
+        (self.root / "docs" / "part-3" / "notes.md").write_text("# Notes\n", encoding="utf-8")
+        sha = self.commit("page")
+        keep = release.Version.parse
+        self.assertEqual(str(self.prepare([self.pr(sha)], channel="demo", keep=keep("v1.1.0-rc.1"))[0]),
+                         "v1.1.0-rc.1")
+        self.assertEqual(str(self.prepare([self.pr(sha)], channel="demo", keep=keep("v1.0.1"))[0]), "v1.0.1")
+        write(self.root, "docs/part-2/prn-01.md", "id: PRN-01\ntype: principle\ntitle: Safety\nversion: 2")
+        self.commit("doctrine")
+        self.assertEqual(str(self.prepare([], keep=keep("v1.1.0"))[0]), "v2.0.0")
 
     def test_doctrine_change_is_major_and_bump_cannot_go_lower(self):
         write(self.root, "docs/part-2/prn-01.md", "id: PRN-01\ntype: principle\ntitle: Safety\nversion: 2")
@@ -350,6 +376,8 @@ class PrepareTests(unittest.TestCase):
         (self.root / "docs" / "changelog.md").write_text(files[release.CHANGELOG], encoding="utf-8")
         with self.assertRaises(release.ReleaseError):
             self.prepare([])
+        with self.assertRaises(release.NothingToRelease):
+            self.prepare([], skip_empty=True)
 
     def test_cli_pending_and_notes(self):
         out = subprocess.run([sys.executable, str(ROOT / "tools" / "release.py"), "--top", str(self.root),

@@ -54,8 +54,8 @@ uv run sphinx-build -W -b html docs docs/_build/html
 ## Releasing
 
 1. Every pull request ends with a **Changelog summary**: a sentence or two for readers, or "none". Reviewers can reword it before merging.
-2. When it's time for a release, a doctrine owner runs **Actions → Prepare release** and picks final, rc (release candidate for consultation) or demo. It works out the version and opens a "Release vX.Y.Z" pull request that adds the changelog section. Each entry credits its pull request's author, and the section lists everyone who wrote or co-wrote a change, by their GitHub profile name or else their handle. Newcomers are added to the overall `docs/contributors.md` page, which also takes people added by hand.
-3. Reword the section in that pull request if needed, then approve and merge. **Release** builds the site and PDF, creates the tag and the GitHub release, then republishes the site so it shows the new version.
+2. After each merge to `main`, **Prepare release** keeps one "Release vX.Y.Z" pull request up to date. It works out the version and writes the changelog section. Each entry credits its pull request's author, and the section lists everyone who wrote or co-wrote a change, by their GitHub profile name or else their handle. Newcomers are added to the overall `docs/contributors.md` page, which also takes people added by hand. Automatic runs use the `RELEASE_CHANNEL` repository variable (default demo) and open a pull request only when there is something for the changelog. To choose final, rc (release candidate for consultation) or a higher bump, a doctrine owner runs **Actions → Prepare release** by hand; later merges keep that choice.
+3. Reword the section in that pull request if needed, then approve and merge. The next merge to `main` rebuilds the section, so reword just before merging. **Release** builds the site and PDF, creates the tag and the GitHub release, then republishes the site so it shows the new version.
 
 | Since the last release | Version |
 |---|---|

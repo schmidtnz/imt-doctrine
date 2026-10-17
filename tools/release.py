@@ -39,6 +39,10 @@ class ReleaseError(Exception):
     pass
 
 
+class NothingToRelease(ReleaseError):
+    """Raised instead of preparing a release when skip_empty is set and there's nothing to say."""
+
+
 @dataclass(frozen=True)
 class Version:
     major: int
@@ -405,8 +409,8 @@ def render_body(version: Version, level: str, auto: str, changes: list[Change], 
              "and creates the GitHub release with this version's changelog section as its notes.", "",
              f"**Version:** {level}" + (f" (chosen; item changes alone give {auto})" if level != auto else "")
              + f". Since {since or 'the start'}: {why}.", "",
-             f"Reword anything in `{CHANGELOG}` in this pull request. Running *Prepare release* again "
-             "rebuilds the section and discards those edits."]
+             f"Reword anything in `{CHANGELOG}` in this pull request. Each merge to main, or running "
+             "*Prepare release* again, rebuilds the section and discards those edits."]
     if newcomers:
         lines += ["", f"**New contributors**, added to `{CONTRIBUTORS}`: "
                   + ", ".join(p.display for p in newcomers)]
@@ -479,8 +483,13 @@ def github_profile_name(login: str) -> str | None:
 
 def prepare(top: Path, channel: str, bump_to: str, repo: str, today: dt.date,
             prs: Callable[[set[str]], list[dict]], profile_name: Callable[[str], str | None] = lambda login: None,
-            root: str = "docs") -> tuple[Version, dict[str, str], str]:
-    """Return (version, {path: new text} for each changed file, pull request description)."""
+            root: str = "docs", keep: Version | None = None,
+            skip_empty: bool = False) -> tuple[Version, dict[str, str], str]:
+    """Return (version, {path: new text} for each changed file, pull request description).
+
+    keep is the open release pull request's version: its channel and bump level carry over while
+    they are still allowed. skip_empty raises NothingToRelease when there is nothing to publish.
+    """
     tags = repo_tags(top)
     text = (top / CHANGELOG).read_text(encoding="utf-8")
     problems = changelog_problems(text, tags)
@@ -488,8 +497,9 @@ def prepare(top: Path, channel: str, bump_to: str, repo: str, today: dt.date,
         raise ReleaseError("; ".join(problems))
     waiting = pending(text, tags)
     if waiting:
-        raise ReleaseError(f"{waiting} is already waiting to be published: run the Release workflow, "
-                           "or remove its section first")
+        raise (NothingToRelease if skip_empty else ReleaseError)(
+            f"{waiting} is already waiting to be published: run the Release workflow, "
+            "or remove its section first")
     owned = owners((top / ".github" / "CODEOWNERS").read_text(encoding="utf-8"))
     now = items_now(top, root)
     base = anchor(tags)
@@ -498,13 +508,20 @@ def prepare(top: Path, channel: str, bump_to: str, repo: str, today: dt.date,
     level = auto if bump_to == "auto" else bump_to
     if LEVELS.index(level) < LEVELS.index(auto):
         raise ReleaseError(f"item changes need at least a {auto} release, not {level}")
+    if keep:
+        channel = keep.channel
+        kept = next((lv for lv in LEVELS if bump(base.core if base else (0, 0, 0), lv) == keep.core), None)
+        if kept and LEVELS.index(kept) > LEVELS.index(level):
+            level = kept
     version = next_version(tags, level, channel)
     since = latest(tags) if channel == "rc" else base
     changes = item_changes(items_at(top, since and str(since), root), now, owned)
     shas = merged_shas(top, since)
     if not shas:
-        raise ReleaseError(f"nothing has changed since {since}")
+        raise (NothingToRelease if skip_empty else ReleaseError)(f"nothing has changed since {since}")
     entries = entries_from(prs(shas), shas, owned, profile_name)
+    if skip_empty and not changes and not any(in_changelog(e) for e in entries):
+        raise NothingToRelease(f"nothing for the changelog since {since}")
     section = render_section(version, today, entries, changes, doctrace.check(now, today), repo)
     files = {CHANGELOG: insert_section(text, section)}
     newcomers: list[Person] = []
@@ -544,6 +561,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--base", default="main", help="branch pull requests merge into")
     p.add_argument("--body", type=Path, help="write the release pull request description here")
     p.add_argument("--dry-run", action="store_true", help="print instead of writing the changelog")
+    p.add_argument("--keep", type=Version.parse, help="open release PR's version: keep its channel and bump")
+    p.add_argument("--skip-empty", action="store_true",
+                   help="succeed without changes when there is nothing to release")
     sub.add_parser("pending", help="print the newest changelog version if it has no tag yet")
     n = sub.add_parser("notes", help="print one version's changelog section")
     n.add_argument("version")
@@ -583,7 +603,11 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         version, files, body = prepare(top, args.channel, args.bump, args.repo, dt.date.today(),
                                        lambda shas: github_prs(args.repo, args.base, shas),
-                                       github_profile_name)
+                                       github_profile_name, keep=args.keep, skip_empty=args.skip_empty)
+    except NothingToRelease as exc:
+        print(f"Nothing to release: {exc}.")
+        _output("version", "")
+        return 0
     except (ReleaseError, subprocess.CalledProcessError) as exc:
         return _fail(str(exc))
     if args.dry_run:

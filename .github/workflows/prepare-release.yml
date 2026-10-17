@@ -3,7 +3,14 @@ name: Prepare release
 # Opens or refreshes the "Release vX.Y.Z" pull request. The version comes from item changes since
 # the last release; the changelog section from merged pull requests' changelog summaries.
 # Merging that pull request publishes the release (release.yml).
+# After each other merge to main it runs by itself: it keeps the open release pull request's
+# channel and bump, or opens one on the RELEASE_CHANNEL variable's channel (default demo) when
+# there is something for the changelog.
 on:
+  push:
+    branches: [main]
+    # Merging the release pull request itself changes only these.
+    paths-ignore: [docs/changelog.md, docs/contributors.md]
   workflow_dispatch:
     inputs:
       channel:
@@ -16,6 +23,10 @@ on:
         type: choice
         options: [auto, patch, minor, major]
         default: auto
+      auto:
+        description: Run as after a merge (keep the open release pull request; skip if nothing to release)
+        type: boolean
+        default: false
 
 # The release app opens the pull request, so its checks run and Actions can't approve PRs.
 permissions:
@@ -55,11 +66,23 @@ jobs:
       - run: uv sync --locked --no-dev
       - id: prepare
         env:
+          AUTO: ${{ github.event_name == 'push' || inputs.auto }}
+          AUTO_CHANNEL: ${{ vars.RELEASE_CHANNEL || 'demo' }}
           CHANNEL: ${{ inputs.channel }}
-          BUMP: ${{ inputs.bump }}
+          BUMP: ${{ inputs.bump || 'auto' }}
           TZ: Pacific/Auckland  # NZ changelog dates
-        run: uv run python tools/release.py prepare --channel "$CHANNEL" --bump "$BUMP" --body "$RUNNER_TEMP/body.md"
+        run: |
+          args=(--bump "$BUMP" --body "$RUNNER_TEMP/body.md")
+          if [ "$AUTO" = true ]; then
+            args+=(--channel "$AUTO_CHANNEL" --skip-empty)
+            open=$(gh pr list --head release/next --state open --json title --jq '.[0].title // ""')
+            [ -z "$open" ] || args+=(--keep "${open#Release }")
+          else
+            args+=(--channel "$CHANNEL")
+          fi
+          uv run python tools/release.py prepare "${args[@]}"
       - name: Open release pull request
+        if: steps.prepare.outputs.version != ''
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}
           BOT: ${{ steps.app.outputs.app-slug }}[bot]

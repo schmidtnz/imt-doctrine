@@ -1,5 +1,6 @@
 """Unit tests for the traceability checker and Sphinx extension helpers."""
 import datetime as dt
+import json
 import subprocess
 import sys
 import tempfile
@@ -7,6 +8,7 @@ import textwrap
 import types
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -174,15 +176,19 @@ class GitTests(Base):
     def git(self, *args):
         subprocess.run(["git", *args], cwd=self.root, check=True, capture_output=True)
 
-    def test_git_base_reads_old_version(self):
-        self.git("init", "-q")
-        self.git("config", "user.email", "t@example.org")
-        self.git("config", "user.name", "t")
-        self.git("config", "commit.gpgsign", "false")
-        write(self.root, "docs/p.md", PRN, body="# Safety\n\nOld.\n")
-        write(self.root, "docs/c.md", con())
+    def commit(self):
+        if not (self.root / ".git").exists():
+            self.git("init", "-q")
+            self.git("config", "user.email", "t@example.org")
+            self.git("config", "user.name", "t")
+            self.git("config", "commit.gpgsign", "false")
         self.git("add", ".")
         self.git("commit", "-qm", "base")
+
+    def test_git_base_reads_old_version(self):
+        write(self.root, "docs/p.md", PRN, body="# Safety\n\nOld.\n")
+        write(self.root, "docs/c.md", con())
+        self.commit()
         write(self.root, "docs/p.md", PRN, body="# Safety\n\nNew.\n")
         write(self.root, "docs/n.md", PRN.replace("PRN-01", "PRN-02"))
         items, _ = doctrace.load_items(self.root / "docs")
@@ -190,6 +196,29 @@ class GitTests(Base):
         self.assertEqual(set(base), {"PRN-01", "CON-01"})
         self.assertEqual(base["PRN-01"][0], 2)
         self.assertIn("Old.", base["PRN-01"][1])
+
+    def test_load_items_at_reads_whole_tree_at_ref(self):
+        write(self.root, "docs/p.md", PRN)
+        write(self.root, "docs/old.md", PRN.replace("PRN-01", "PRN-09"))
+        self.commit()
+        (self.root / "docs/old.md").unlink()
+        write(self.root, "docs/p.md", PRN.replace("version: 2", "version: 3"))
+        items, findings = doctrace.load_items_at(self.root / "docs", "HEAD")
+        self.assertEqual(set(items), {"PRN-01", "PRN-09"})
+        self.assertEqual(items["PRN-01"].version, 2)
+        self.assertEqual(findings, [])
+
+    def test_cli_writes_comment_against_base(self):
+        write(self.root, "docs/p.md", PRN + "    requires_children: [concept]\n")
+        self.commit()
+        write(self.root, "docs/c.md", con(against=1))
+        comment = self.root / "comment.md"
+        doctrace.main(["--root", str(self.root / "docs"), "--today", "2026-10-09",
+                       "--base", "HEAD", "--comment", str(comment)])
+        text = comment.read_text(encoding="utf-8")
+        self.assertIn("Compared with `HEAD`: 1 new, 1 resolved.", text)
+        self.assertIn("| new | stale | CON-01 Hazards |", text)
+        self.assertIn("| resolved | warning | PRN-01 Safety | no concept derives", text)
 
 
 class ReportTests(Base):
@@ -215,6 +244,24 @@ class ReportTests(Base):
         items, findings = self.run_check()
         self.assertEqual(doctrace.overdue_report(items, findings), "")
 
+    def test_comment_without_changes_still_lists_findings(self):
+        write(self.root, "p.md", PRN)
+        write(self.root, "c.md", con(against=1))
+        items, findings = self.run_check()
+        text = doctrace.comment_report(items, findings, items, findings, "main")
+        self.assertIn("No traceability changes compared with `main`.", text)
+        self.assertIn("2 items: 0 errors, 0 warnings, 1 stale, 0 overdue.", text)
+        self.assertIn("<summary>All findings (1)</summary>", text)
+
+    def test_badge(self):
+        write(self.root, "p.md", PRN)
+        self.assertEqual(json.loads(doctrace.badge(self.run_check()[1]))["message"], "all clear")
+        write(self.root, "c.md", con(against=1))
+        data = json.loads(doctrace.badge(self.run_check()[1]))
+        self.assertEqual((data["message"], data["color"]), ("1 stale", "yellow"))
+        write(self.root, "c.md", con(against=9))
+        self.assertEqual(json.loads(doctrace.badge(self.run_check()[1]))["color"], "red")
+
 
 class CliTests(Base):
     def test_exit_codes_and_outputs(self):
@@ -225,6 +272,10 @@ class CliTests(Base):
         self.assertTrue(report.read_text().startswith("# Traceability status"))
         write(self.root, "c.md", con(against=9))
         self.assertEqual(doctrace.main(args), 1)
+
+    def test_comment_needs_base(self):
+        with self.assertRaises(SystemExit), mock.patch("sys.stderr"):
+            doctrace.main(["--root", str(self.root), "--comment", str(self.root / "c.md")])
 
     def test_github_annotation_format(self):
         f = doctrace.Finding("stale", "msg", "CON-01", Path("docs/c.md"))

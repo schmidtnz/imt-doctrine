@@ -357,7 +357,7 @@ def insert_section(text: str, section: str) -> str:
 
 
 def render_section(version: Version, date: dt.date, entries: list[Entry], changes: list[Change],
-                   stale: list[doctrace.Finding], repo: str) -> str:
+                   findings: list[doctrace.Finding], repo: str) -> str:
     lines = [f"## {version} — {date.isoformat()}", ""]
     for group in GROUPS:
         rows = [e for e in entries if e.group == group and in_changelog(e)]
@@ -380,10 +380,12 @@ def render_section(version: Version, date: dt.date, entries: list[Entry], change
         if wording:
             lines.append(f"- Wording only, meaning unchanged: {', '.join(wording)}")
         lines.append("")
+    stale = [f for f in findings if f.level == "stale"]
     if stale:
         lines += ["### Needs review", ""]
         lines += [f"- **{f.item_id}** {f.message}" for f in stale]
         lines.append("")
+    lines += [f"Traceability at release: {doctrace.count_summary(findings, skip_zero=True) or 'all clear'}.", ""]
     people = contributors(entries)
     if people:
         lines += ["Contributors: " + ", ".join(p.markdown for p in people), ""]
@@ -432,15 +434,7 @@ def repo_tags(top: Path) -> list[Version]:
 
 
 def items_at(top: Path, ref: str | None, root: str) -> dict[str, doctrace.Item]:
-    if ref is None:
-        return {}
-    items: dict[str, doctrace.Item] = {}
-    for name in _git(top, "ls-tree", "-r", "-z", "--name-only", ref, "--", root).split("\0"):
-        if name.endswith(".md") and "_build" not in name.split("/"):
-            item, _ = doctrace.parse_item(Path(name), _git(top, "show", f"{ref}:{name}"))
-            if item:
-                items.setdefault(item.id, item)
-    return items
+    return doctrace.load_items_at(top / root, ref)[0] if ref else {}
 
 
 def items_now(top: Path, root: str) -> dict[str, doctrace.Item]:
@@ -511,8 +505,7 @@ def prepare(top: Path, channel: str, bump_to: str, repo: str, today: dt.date,
     if not shas:
         raise ReleaseError(f"nothing has changed since {since}")
     entries = entries_from(prs(shas), shas, owned, profile_name)
-    stale = [f for f in doctrace.check(now, today) if f.level == "stale"]
-    section = render_section(version, today, entries, changes, stale, repo)
+    section = render_section(version, today, entries, changes, doctrace.check(now, today), repo)
     files = {CHANGELOG: insert_section(text, section)}
     newcomers: list[Person] = []
     if (top / CONTRIBUTORS).exists():

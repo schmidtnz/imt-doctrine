@@ -1,5 +1,5 @@
 name: Install LaTeX
-description: TeX Live packages needed by `sphinx-build -M latexpdf` with xelatex, plus mermaid-cli for diagrams.
+description: TeX Live packages needed by `sphinx-build -M latexpdf` with xelatex, plus rsvg-convert for SVG figures and mermaid-cli for diagrams.
 runs:
   using: composite
   steps:
@@ -7,7 +7,8 @@ runs:
       run: |
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends latexmk xindy texlive-xetex \
-          texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended fonts-freefont-otf
+          texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended fonts-freefont-otf \
+          librsvg2-bin
     - name: Install mermaid-cli
       shell: bash
       run: |

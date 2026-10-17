@@ -25,7 +25,11 @@ project = "IMT Doctrine"
 author = "Doctrine working group"
 release = version = _release()
 
-extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.mermaid", "traceability"]
+# rsvgconverter turns SVG figures into PDF for the LaTeX build (needs rsvg-convert).
+extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.rsvgconverter",
+              "sphinxcontrib.mermaid", "traceability"]
+numfig = True
+numfig_format = {"figure": "Figure %s"}
 myst_enable_extensions = ["colon_fence", "deflist", "substitution", "tasklist"]
 # Plain ```mermaid fences, so diagrams also render in GitHub's Markdown preview.
 myst_fence_as_directive = ["mermaid"]

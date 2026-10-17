@@ -6,20 +6,7 @@ Numbering follows the draft. The order and grouping of principles is still open 
 
 ```{toctree}
 :maxdepth: 1
+:glob:
 
-prn-01-unified
-prn-02-cims
-prn-03-partnerships
-prn-04-regional
-prn-05-readiness
-prn-06-leadership
-prn-07-communications
-prn-08-evidence
-prn-09-urgency
-prn-10-information
-prn-11-systematic
-prn-12-simplicity
-prn-13-safety
-prn-14-improvement
-prn-15-iwi
+prn-*
 ```

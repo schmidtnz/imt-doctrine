@@ -6,10 +6,9 @@ A land search runs through four stages: initial response, extended search planni
 
 ```{toctree}
 :maxdepth: 1
+:glob:
 
-prc-01-initial-response
-prc-02-extended-search
-prc-03-notification
+prc-*
 ```
 
 ## Standard operating procedures

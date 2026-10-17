@@ -79,7 +79,7 @@ When the repository moves to an organisation, replace `@schmidtnz` in `CODEOWNER
 
 ### Read the Docs (trial)
 
-`.readthedocs.yaml` builds the same site on Read the Docs, alongside GitHub Pages. Sign in at <https://app.readthedocs.org> with GitHub and import this repository. It then builds `main` as "latest", HTML and PDF for each tag you activate under *Versions*, and an HTML-only preview for each pull request. The GitHub workflows still publish the site, PDF previews and releases.
+`.readthedocs.yaml` builds the same site on Read the Docs, alongside GitHub Pages. Sign in at <https://app.readthedocs.org> with GitHub and import this repository as `imt-doctrine-trial`, so it's served at <https://imt-doctrine-trial.readthedocs.io> and `imt-doctrine` stays free (a project's name can't be changed later). Its `robots.txt` asks search engines to stay away. It builds `main` as "latest", HTML and PDF for each tag you activate under *Versions*, and an HTML-only preview for each pull request. The GitHub workflows still publish the site, PDF previews and releases.
 
 ## Licence
 

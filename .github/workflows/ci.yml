@@ -23,11 +23,19 @@ jobs:
       - name: Traceability check
         run: |
           base=""
-          if [ "${{ github.event_name }}" = pull_request ]; then base="--base origin/${{ github.base_ref }}"; fi
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            base="--base origin/${{ github.base_ref }} --comment trace-comment.md"
+          fi
           status=0
           uv run python tools/doctrace.py --root docs $base --report trace-report.md || status=$?
           cat trace-report.md >> "$GITHUB_STEP_SUMMARY"
           exit $status
+      # PR preview posts this as the pull request's Traceability comment, even when the check fails.
+      - if: always() && hashFiles('trace-comment.md') != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: traceability
+          path: trace-comment.md
       - name: Changelog check
         run: uv run python tools/release.py check
       - name: Build site

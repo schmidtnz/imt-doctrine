@@ -41,6 +41,8 @@ When an item's meaning changes, its author bumps `version`. Every child written 
 | Parent text changed but version not bumped | Warning |
 | `last_reviewed` older than the review interval | Listed as overdue |
 
+Each pull request also gets a **Traceability** comment listing the findings it adds or resolves, and each release's changelog records the totals at release.
+
 ## Say it once
 
 - Repeated text, such as the {term}`POD` scale, lives in one snippet file and is included on every page that needs it (five pages here).

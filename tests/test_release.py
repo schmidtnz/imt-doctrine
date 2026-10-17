@@ -247,8 +247,9 @@ class ChangelogTests(unittest.TestCase):
         changes = [release.Change("PRN-03", "Partnerships", "changed", 1, 2, True),
                    release.Change("FRM-04", "Log", "new", None, 1, False),
                    release.Change("GDL-01", "Managing", "wording", 1, 1, False)]
-        stale = [doctrace.Finding("stale", "written against PRN-03 v1; PRN-03 is now v2", "CON-03")]
-        text = release.render_section(V.parse("v1.1.0"), TODAY, entries, changes, stale, "o/r")
+        findings = [doctrace.Finding("stale", "written against PRN-03 v1; PRN-03 is now v2", "CON-03"),
+                    doctrace.Finding("overdue", "last reviewed 2025-01-01", "GDL-01")]
+        text = release.render_section(V.parse("v1.1.0"), TODAY, entries, changes, findings, "o/r")
         self.assertTrue(text.startswith("## v1.1.0 — 2026-10-20\n"))
         self.assertLess(text.index("### Doctrine"), text.index("### Guidance and forms"))
         self.assertIn("- Doctrine change ([#3](https://github.com/o/r/pull/3), [Cy Ro](https://github.com/Cy))", text)
@@ -257,7 +258,11 @@ class ChangelogTests(unittest.TestCase):
         self.assertIn("- **PRN-03** Partnerships: v1 → v2\n- **FRM-04** Log: new, v1\n", text)
         self.assertIn("Wording only, meaning unchanged: GDL-01", text)
         self.assertIn("- **CON-03** written against PRN-03 v1", text)
+        self.assertNotIn("GDL-01 last reviewed", text)
+        self.assertIn("Traceability at release: 1 stale, 1 overdue.\n", text)
         self.assertIn("Contributors: [@amy](https://github.com/amy), [Cy Ro](https://github.com/Cy)\n", text)
+        self.assertIn("Traceability at release: all clear.",
+                      release.render_section(V.parse("v1.1.0"), TODAY, entries, changes, [], "o/r"))
 
 
 def write(root: Path, name: str, meta: str) -> None:

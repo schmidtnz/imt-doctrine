@@ -1,7 +1,8 @@
 name: PR preview
 
-# Publishes what CI built for a pull request to gh-pages/pr-preview/pr-N/, and removes it when the
-# pull request closes. Runs in the base repository so it also works for pull requests from forks.
+# Publishes what CI built for a pull request to gh-pages/pr-preview/pr-N/, posts CI's traceability
+# summary as a comment, and removes the preview when the pull request closes. Runs in the base
+# repository so it also works for pull requests from forks.
 # It never checks out or runs pull request code: it only copies CI's built files.
 on:
   workflow_run:
@@ -64,6 +65,7 @@ jobs:
               --status completed --json databaseId --jq '.[0].databaseId // empty')
             if [ -z "$run" ]; then echo "waiting=true" >> "$GITHUB_OUTPUT"; exit 0; fi
           fi
+          gh run download "$run" -R "$REPO" -n traceability -D _trace && echo "trace=true" >> "$GITHUB_OUTPUT" || true
           gh run download "$run" -R "$REPO" -n site -D _preview || { echo "CI built no site."; exit 0; }
           gh run download "$run" -R "$REPO" -n pdf -D _preview && echo "pdf=true" >> "$GITHUB_OUTPUT" || true
           echo "ready=true" >> "$GITHUB_OUTPUT"
@@ -110,6 +112,12 @@ jobs:
           header: pr-preview
           number_force: ${{ steps.find.outputs.pr }}
           message: ${{ steps.message.outputs.body }}
+      - if: steps.find.outputs.trace == 'true'
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: traceability
+          number_force: ${{ steps.find.outputs.pr }}
+          path: _trace/trace-comment.md
 
   remove:
     if: github.event_name == 'pull_request_target' && github.event.action == 'closed'

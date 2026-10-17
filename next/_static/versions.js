@@ -43,7 +43,8 @@
     }
   };
 
-  fetch(new URL("versions.json", siteRoot))
+  // Pages caches files for 10 minutes; revalidate so a new release shows at once.
+  fetch(new URL("versions.json", siteRoot), { cache: "no-cache" })
     .then((r) => (r.ok ? r.json() : null))
     .then((data) => data && show(data))
     .catch(() => {});

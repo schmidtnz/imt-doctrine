@@ -42,15 +42,8 @@ exclude_patterns = ["_build", "_snippets", "Thumbs.db", ".DS_Store"]
 html_theme = "furo"
 html_title = f"IMT Doctrine {release}"
 html_static_path = ["_static"]
-html_css_files = ["custom.css"]
+html_css_files = ["custom.css", "versions.css"]
 html_js_files = ["versions.js"]
-templates_path = ["_templates"]
-# Furo's sidebar with the version menu added under the title.
-html_sidebars = {"**": [
-    "sidebar/brand.html", "sidebar/versions.html", "sidebar/search.html", "sidebar/scroll-start.html",
-    "sidebar/navigation.html", "sidebar/ethical-ads.html", "sidebar/scroll-end.html",
-    "sidebar/variant-selector.html",
-]}
 html_theme_options = {
     "announcement": "Demonstration only: illustrative content, not agreed doctrine.",
     "source_repository": "https://github.com/schmidtnz/imt-doctrine/",

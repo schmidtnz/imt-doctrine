@@ -42,6 +42,29 @@ class LayoutTests(unittest.TestCase):
         self.assertIn(r"v\d+\.\d+\.\d+(-rc\.\d+|-demo)?", page)
 
 
+class AddMenuTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.site = Path(self.tmp.name)
+        (self.site / "_static").mkdir()
+        (self.site / "part-2").mkdir()
+        for page in ("index.html", "part-2/prn-01.html"):
+            (self.site / page).write_bytes(b"<html><head>\r\n<title>x</title></head><body></body></html>")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_adds_menu_with_relative_paths_once(self):
+        static = ROOT / "docs" / "_static"
+        self.assertEqual(site_index.add_menu(self.site, static), 2)
+        self.assertTrue((self.site / "_static" / "versions.css").exists())
+        page = (self.site / "part-2" / "prn-01.html").read_bytes().decode()
+        self.assertIn('<script defer src="../_static/versions.js"></script>\n</head>', page)
+        self.assertIn("<head>\r\n", page)
+        self.assertIn('href="_static/versions.css"', (self.site / "index.html").read_text())
+        self.assertEqual(site_index.add_menu(self.site, static), 0)
+
+
 class CliTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

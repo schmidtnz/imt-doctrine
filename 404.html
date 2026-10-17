@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Page not found - IMT Doctrine</title>
+<script>
+(() => {
+  const base = "/imt-doctrine/", fallback = "latest";
+  const folder = /^(next|latest|pr-preview|v\d+\.\d+\.\d+(-rc\.\d+|-demo)?)$/;
+  const path = location.pathname.startsWith(base) ? location.pathname.slice(base.length) : "";
+  const parts = path.split("/").filter(Boolean);
+  if (!parts.length) return;
+  if (!folder.test(parts[0])) location.replace(base + fallback + "/" + path + location.search + location.hash);
+  else if (parts.length > 1) location.replace(base + parts[0] + "/");
+})();
+</script></head>
+<body><h1>Page not found</h1><p><a href="/imt-doctrine/latest/">Go to the IMT Doctrine</a></p></body></html>

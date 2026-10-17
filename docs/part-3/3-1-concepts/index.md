@@ -4,22 +4,7 @@ The central ideas, theories and approaches at the core of the doctrine. Numberin
 
 ```{toctree}
 :maxdepth: 1
+:glob:
 
-con-01-hierarchy
-con-02-safety
-con-03-pre-plans
-con-04-notification
-con-05-leadership
-con-06-imt-cims
-con-07-phases
-con-08-maths
-con-09-lpb
-con-10-communications
-con-11-intel-led
-con-12-mbo
-con-13-iap
-con-14-bike-wheel
-con-15-ir-process
-con-16-esp-process
-con-17-search-theory
+con-*
 ```

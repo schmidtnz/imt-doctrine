@@ -4,8 +4,7 @@ Forms derive from processes or guidelines, so a change upstream flags the forms 
 
 ```{toctree}
 :maxdepth: 1
+:glob:
 
-frm-01-team-debrief
-frm-02-scenario-weighting
-frm-03-imt-checklist
+frm-*
 ```

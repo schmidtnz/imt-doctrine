@@ -25,6 +25,7 @@ planned/index
 :caption: Supporting
 
 forms/index
+figures/index
 glossary
 status/traceability
 how-this-works

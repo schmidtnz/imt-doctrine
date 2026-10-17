@@ -12,6 +12,7 @@ A working demonstration of writing, reviewing and publishing land SAR IMT doctri
 | Traceability: principle → concept → guideline → process → form, with stale, orphan, coverage and overdue checks | `tools/doctrace.py`, `docs/status/traceability` page |
 | Trace box on every item page (parent, children, version, review state) | `docs/_ext/traceability.py` |
 | Say it once: shared snippet (POD scale), glossary, organisation-name substitution | `docs/_snippets/`, `docs/glossary.md`, `docs/conf.py` |
+| Figures: SVG diagrams converted to PDF for the printed version, PNG and JPG used as they are; numbered and cross-referenced | `docs/figures/` |
 | Releases: version worked out from item changes, changelog from pull request summaries, PDF, zipped HTML and checksums | `tools/release.py`, `.github/workflows/prepare-release.yml`, `release.yml` |
 | PR previews with PDF (forks too), link checking, monthly review-date issue | `.github/workflows/` |
 

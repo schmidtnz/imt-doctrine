@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.2.2-demo — 2026-10-18
+
+### Doctrine
+
+- New pages appear in their part's contents automatically, and "How this doctrine is maintained" explains how to add one. ([#18](https://github.com/schmidtnz/imt-doctrine/pull/18), [Tobias Schmidt](https://github.com/schmidtnz))
+
+### Site and tooling
+
+- The site now keeps every release at its own address, with a version menu, next to the latest release and the working draft. ([#20](https://github.com/schmidtnz/imt-doctrine/pull/20), [Tobias Schmidt](https://github.com/schmidtnz))
+
+### Needs review
+
+- **CON-02** written against PRN-13 v1; PRN-13 is now v2
+
+Traceability at release: 1 warning, 1 stale, 1 overdue.
+
+Contributors: [Tobias Schmidt](https://github.com/schmidtnz)
+
 ## v0.2.1-demo — 2026-10-17
 
 ### Guidance and forms

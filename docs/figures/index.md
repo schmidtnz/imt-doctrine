@@ -1,9 +1,9 @@
 # Figures
 
-Diagrams of four ideas from Part 3, drawn for this demonstration from the condensed text. They aren't the draft's own figures.
+Diagrams of four ideas from Part 3, drawn for this demonstration from the condensed text, and two logos as examples of raster images. The diagrams aren't the draft's own figures.
 
 :::{note}
-Each figure is an SVG file next to this page, so changes to it are reviewed in a pull request like text. Figures are numbered automatically and can be cross-referenced: the search planning loop is in {numref}`fig-esp-cycle`. The PDF gets the same figures, converted when it is built.
+Diagrams are SVG files next to this page, so changes to them are reviewed in a pull request like text; the PDF build converts them. Photos and logos are PNG or JPG files, used as they are. Figures are numbered automatically and can be cross-referenced: the search planning loop is in {numref}`fig-esp-cycle`.
 :::
 
 ## Levels of the doctrine
@@ -40,4 +40,26 @@ Each part of the wheel is an initial response objective ({doc}`CON-14 </part-3/3
 :alt: Steps 1 to 7 run once, from reviewing the initial response to weighting the segments. Steps 8 to 11, task, debrief, recalculate and re-task, then repeat as a loop.
 
 Steps 1–7 set up the search; steps 8–11 repeat ({doc}`CON-16 </part-3/3-1-concepts/con-16-esp-process>`, {doc}`PRC-02 </part-3/3-4-processes/prc-02-extended-search>`).
+```
+
+## Raster images
+
+PNG and JPG files need no conversion, so the HTML and the PDF use the same file. Third-party images name their owner in the caption and aren't covered by the content {doc}`licence </licence>`.
+
+```{figure} landsar-logo.png
+:name: fig-landsar-logo
+:alt: Land Search and Rescue New Zealand logo.
+:class: logo
+:width: 300px
+
+Logo of Land Search and Rescue New Zealand (PNG). Shown only as an example of a raster image; it doesn't imply endorsement.
+```
+
+```{figure} nzsar-logo.png
+:name: fig-nzsar-logo
+:alt: New Zealand Search and Rescue logo.
+:class: logo
+:width: 220px
+
+Logo of New Zealand Search and Rescue (PNG). Shown only as an example of a raster image; it doesn't imply endorsement.
 ```

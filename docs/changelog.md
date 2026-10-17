@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.2.3-demo — 2026-10-18
+
+### Site and tooling
+
+- Older versions on the site now show the version menu and a banner pointing to the latest release. ([#24](https://github.com/schmidtnz/imt-doctrine/pull/24), [Tobias Schmidt](https://github.com/schmidtnz))
+- The working draft now shows its version as the last release plus the number of changes since, such as "v0.2.2-demo + 3 changes". ([#26](https://github.com/schmidtnz/imt-doctrine/pull/26), [Tobias Schmidt](https://github.com/schmidtnz))
+
+### Needs review
+
+- **CON-02** written against PRN-13 v1; PRN-13 is now v2
+
+Traceability at release: 1 warning, 1 stale, 1 overdue.
+
+Contributors: [Tobias Schmidt](https://github.com/schmidtnz)
+
 ## v0.2.2-demo — 2026-10-18
 
 ### Doctrine

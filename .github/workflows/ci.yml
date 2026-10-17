@@ -1,12 +1,19 @@
 name: CI
 
+# Builds once per commit: pull requests also check links, main also publishes to next/ on the site.
 on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+# A new push to a pull request cancels its older run; main runs one at a time, newest queued last.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('ci-pr-{0}', github.event.pull_request.number) || format('ci-{0}', github.ref) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -59,3 +66,56 @@ jobs:
         with:
           name: pdf
           path: docs/_build/latex/imt-doctrine.pdf
+
+  # main is checked weekly instead (links.yml).
+  links:
+    if: github.event_name == 'pull_request'
+    needs: build
+    uses: ./.github/workflows/links.yml
+    with:
+      site: true
+
+  publish:
+    if: github.ref == 'refs/heads/main'
+    needs: [build, pdf]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - run: uv sync --locked --no-dev
+      - uses: actions/download-artifact@v8
+        with:
+          name: site
+          path: docs/_build/html
+      - uses: actions/download-artifact@v8
+        with:
+          name: pdf
+          path: docs/_build/html
+      # Data for the README's traceability badge (shields.io endpoint).
+      - run: uv run python tools/doctrace.py --root docs --badge docs/_build/html/traceability.json
+      # main is the working draft, at next/.
+      - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          folder: docs/_build/html
+          branch: gh-pages
+          target-folder: next
+          force: false
+      # Root: versions.json for the version menu, and redirects to latest/ (next/ before the first
+      # release). Release folders and previews are left alone.
+      - run: |
+          git fetch -q origin gh-pages
+          uv run python tools/site_index.py root --out _root
+      - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          folder: _root
+          branch: gh-pages
+          clean-exclude: |
+            next/
+            latest/
+            v*/
+            pr-preview/
+          force: false

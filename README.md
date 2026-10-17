@@ -16,7 +16,7 @@ A working demonstration of writing, reviewing and publishing land SAR IMT doctri
 | Say it once: shared snippet (POD scale), glossary, organisation-name substitution | `docs/_snippets/`, `docs/glossary.md`, `docs/conf.py` |
 | Figures: SVG diagrams converted to PDF for the printed version, PNG and JPG used as they are; numbered and cross-referenced | `docs/figures/` |
 | Releases: version worked out from item changes, changelog from pull request summaries, PDF, zipped HTML and checksums | `tools/release.py`, `.github/workflows/prepare-release.yml`, `release.yml` |
-| Versioned site: `latest/` (newest release), `next/` (working draft from `main`) and a folder per release, with a version menu and an old-version banner | `tools/site_index.py`, `docs/_static/versions.js`, `publish.yml`, `release.yml` |
+| Versioned site: `latest/` (newest release), `next/` (working draft from `main`) and a folder per release, with a version menu and an old-version banner | `tools/site_index.py`, `docs/_static/versions.js`, `ci.yml`, `release.yml` |
 | PR previews with PDF (forks too), link checking, monthly review-date issue | `.github/workflows/` |
 
 The demo content deliberately contains one stale item (CON-02), one coverage gap (PRN-15) and one overdue review (GDL-04), so the status page has something to show.

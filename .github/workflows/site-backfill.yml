@@ -49,4 +49,4 @@ jobs:
           target-folder: latest
           force: false
       # Rebuilds the site root so the version list includes it.
-      - run: gh workflow run publish.yml --ref main
+      - run: gh workflow run ci.yml --ref main

@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: changelog-summary-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   changelog-summary:
     runs-on: ubuntu-latest

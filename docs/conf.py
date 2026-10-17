@@ -25,7 +25,10 @@ project = "IMT Doctrine"
 author = "Doctrine working group"
 release = version = _release()
 
-extensions = ["myst_parser", "sphinx.ext.githubpages", "traceability"]
+# rsvgconverter turns SVG figures into PDF for the LaTeX build (needs rsvg-convert).
+extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.rsvgconverter", "traceability"]
+numfig = True
+numfig_format = {"figure": "Figure %s"}
 myst_enable_extensions = ["colon_fence", "deflist", "substitution", "tasklist"]
 myst_heading_anchors = 3
 myst_substitutions = {

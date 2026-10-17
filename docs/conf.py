@@ -25,8 +25,10 @@ project = "IMT Doctrine"
 author = "Doctrine working group"
 release = version = _release()
 
-extensions = ["myst_parser", "sphinx.ext.githubpages", "traceability"]
+extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.mermaid", "traceability"]
 myst_enable_extensions = ["colon_fence", "deflist", "substitution", "tasklist"]
+# Plain ```mermaid fences, so diagrams also render in GitHub's Markdown preview.
+myst_fence_as_directive = ["mermaid"]
 myst_heading_anchors = 3
 myst_substitutions = {
     "org": "LandSAR",
@@ -46,6 +48,10 @@ html_theme_options = {
     "source_branch": "main",
     "source_directory": "docs/",
 }
+
+# Size diagrams to fit; the PDF build draws them with mmdc, cropped by --pdfFit.
+mermaid_height = "auto"
+mermaid_params = ["--pdfFit"]
 
 latex_engine = "xelatex"
 

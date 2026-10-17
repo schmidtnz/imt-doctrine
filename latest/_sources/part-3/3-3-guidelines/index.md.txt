@@ -6,13 +6,9 @@ Guidance tier: one approval from any reviewer merges a change.
 
 ```{toctree}
 :maxdepth: 1
+:glob:
 
-gdl-01-managing-imt
-gdl-02-initial-response
-gdl-03-handovers
-gdl-04-rescue
-gdl-05-extended-search
-gdl-06-suspension
+gdl-*
 ```
 
 The summary checklist (3.3.7) is a form: {doc}`/forms/frm-03-imt-checklist`.

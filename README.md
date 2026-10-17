@@ -1,5 +1,7 @@
 # IMT Doctrine (demonstration)
 
+[![CI](https://github.com/schmidtnz/imt-doctrine/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/schmidtnz/imt-doctrine/actions/workflows/ci.yml?query=branch%3Amain) [![Traceability](https://img.shields.io/endpoint?url=https%3A%2F%2Fschmidtnz.github.io%2Fimt-doctrine%2Ftraceability.json)](https://schmidtnz.github.io/imt-doctrine/status/traceability.html) [![Release](https://img.shields.io/github/v/release/schmidtnz/imt-doctrine?include_prereleases)](https://github.com/schmidtnz/imt-doctrine/releases)
+
 A working demonstration of writing, reviewing and publishing land SAR IMT doctrine from Git. The structure and numbering follow draft v0.1 (Parts 1–3, forms). The text is condensed from the draft for illustration and is not agreed doctrine.
 
 **Read it:** <https://schmidtnz.github.io/imt-doctrine/> (latest from `main`, with a [PDF](https://schmidtnz.github.io/imt-doctrine/imt-doctrine.pdf)). To suggest a change, use "Edit this page" on any page; GitHub opens a pull request for you.
@@ -9,7 +11,7 @@ A working demonstration of writing, reviewing and publishing land SAR IMT doctri
 | Feature | Where |
 |---|---|
 | Two review tiers: doctrine owners approve Parts 1, 2, 3.1–3.2; anyone approves guidance and forms | `.github/CODEOWNERS`, `.github/rulesets/main.json` |
-| Traceability: principle → concept → guideline → process → form, with stale, orphan, coverage and overdue checks | `tools/doctrace.py`, `docs/status/traceability` page |
+| Traceability: principle → concept → guideline → process → form, with stale, orphan, coverage and overdue checks; a comment on each pull request lists the findings it adds or resolves | `tools/doctrace.py`, `docs/status/traceability` page |
 | Trace box on every item page (parent, children, version, review state) | `docs/_ext/traceability.py` |
 | Say it once: shared snippet (POD scale), glossary, organisation-name substitution | `docs/_snippets/`, `docs/glossary.md`, `docs/conf.py` |
 | Figures: SVG diagrams converted to PDF for the printed version, PNG and JPG used as they are; numbered and cross-referenced | `docs/figures/` |

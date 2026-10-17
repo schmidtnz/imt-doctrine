@@ -24,6 +24,8 @@ jobs:
       - run: uv run pytest -q
       - run: uv run python tools/doctrace.py --root docs
       - run: uv run sphinx-build -W --keep-going -b html docs docs/_build/html
+      # Data for the README's traceability badge (shields.io endpoint).
+      - run: uv run python tools/doctrace.py --root docs --badge docs/_build/html/traceability.json
       - uses: ./.github/actions/latex
       - run: |
           uv run sphinx-build -M latexpdf docs docs/_build

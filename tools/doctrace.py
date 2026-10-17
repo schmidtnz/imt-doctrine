@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import json
 import os
 import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Iterable
 
 import yaml
 
@@ -98,12 +99,25 @@ def parse_item(path: Path, text: str) -> tuple[Item | None, list[Finding]]:
 
 def load_items(root: Path) -> tuple[dict[str, Item], list[Finding]]:
     """Read every Markdown item under root."""
+    return _collect((p, p.read_text(encoding="utf-8"))
+                    for p in sorted(root.rglob("*.md")) if "_build" not in p.parts)
+
+
+def load_items_at(root: Path, ref: str) -> tuple[dict[str, Item], list[Finding]]:
+    """Read every Markdown item under root as it was at a git ref; paths are relative to the repo."""
+    top = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], cwd=root, text=True).strip()
+    git = lambda *args: subprocess.check_output(["git", *args], cwd=top, text=True, encoding="utf-8")  # noqa: E731
+    rel = Path(os.path.relpath(root.resolve(), top)).as_posix()
+    names = git("ls-tree", "-r", "-z", "--name-only", ref, "--", rel).split("\0")
+    return _collect((Path(name), git("show", f"{ref}:{name}"))
+                    for name in sorted(names) if name.endswith(".md") and "_build" not in name.split("/"))
+
+
+def _collect(files: Iterable[tuple[Path, str]]) -> tuple[dict[str, Item], list[Finding]]:
     items: dict[str, Item] = {}
     findings: list[Finding] = []
-    for path in sorted(root.rglob("*.md")):
-        if "_build" in path.parts:
-            continue
-        item, problems = parse_item(path, path.read_text(encoding="utf-8"))
+    for path, text in files:
+        item, problems = parse_item(path, text)
         findings += problems
         if item is None:
             continue
@@ -179,7 +193,7 @@ def git_base(items: dict[str, Item], ref: str) -> dict[str, tuple[int, str]]:
         try:
             old = subprocess.check_output(
                 ["git", "show", f"{ref}:{Path(rel).as_posix()}"],
-                cwd=item.path.parent, text=True, stderr=subprocess.DEVNULL)
+                cwd=item.path.parent, text=True, encoding="utf-8", stderr=subprocess.DEVNULL)
         except subprocess.CalledProcessError:
             continue
         old_item, _ = parse_item(item.path, old)
@@ -201,8 +215,7 @@ def render_report(items: dict[str, Item], findings: list[Finding], today: dt.dat
     lines = ["# Traceability status", "",
              f"Generated {today.isoformat()} from {len(items)} items: {counts}.", "",
              "## Needs attention", ""]
-    flagged = sorted((f for f in findings if f.level in LEVELS),
-                     key=lambda f: (LEVELS.index(f.level), f.item_id or ""))
+    flagged = _flagged(findings)
     if flagged:
         lines += ["| Status | Item | Detail |", "|---|---|---|"]
         for f in flagged:
@@ -236,6 +249,58 @@ def overdue_report(items: dict[str, Item], findings: list[Finding]) -> str:
     return "Items past their review date:\n\n" + "\n".join(rows) + "\n"
 
 
+def _flagged(findings: list[Finding]) -> list[Finding]:
+    return sorted((f for f in findings if f.level in LEVELS),
+                  key=lambda f: (LEVELS.index(f.level), f.item_id or "", f.message))
+
+
+def count_summary(findings: list[Finding], skip_zero: bool = False) -> str:
+    """Counts by level, such as "0 errors, 1 warning, 1 stale, 0 overdue"."""
+    parts = []
+    for level in LEVELS:
+        n = sum(f.level == level for f in findings)
+        if n or not skip_zero:
+            parts.append(f"{n} {level}{'s' if n != 1 and level in ('error', 'warning') else ''}")
+    return ", ".join(parts)
+
+
+def comment_report(items: dict[str, Item], findings: list[Finding], base_items: dict[str, Item],
+                   base_findings: list[Finding], base_ref: str) -> str:
+    """Markdown pull request comment: findings this change adds or resolves, then all findings."""
+    def who(f: Finding, pool: dict[str, Item]) -> str:
+        item = pool.get(f.item_id or "")
+        return f"{item.id} {item.title}" if item else (f.item_id or str(f.path))
+
+    key = lambda f: (f.level, f.item_id, f.message)  # noqa: E731
+    now, before = _flagged(findings), _flagged(base_findings)
+    added = [f for f in now if key(f) not in {key(b) for b in before}]
+    resolved = [f for f in before if key(f) not in {key(n) for n in now}]
+    lines = ["## Traceability", ""]
+    if added or resolved:
+        lines += [f"Compared with `{base_ref}`: {len(added)} new, {len(resolved)} resolved.", "",
+                  "| Change | Status | Item | Detail |", "|---|---|---|---|"]
+        lines += [f"| new | {f.level} | {who(f, items)} | {f.message} |" for f in added]
+        lines += [f"| resolved | {f.level} | {who(f, base_items)} | {f.message} |" for f in resolved]
+    else:
+        lines.append(f"No traceability changes compared with `{base_ref}`.")
+    lines += ["", f"{len(items)} items: {count_summary(now)}. The Traceability status page has the full report."]
+    if now:
+        lines += ["", f"<details><summary>All findings ({len(now)})</summary>", "",
+                  "| Status | Item | Detail |", "|---|---|---|"]
+        lines += [f"| {f.level} | {who(f, items)} | {f.message} |" for f in now]
+        lines += ["", "</details>"]
+    return "\n".join(lines) + "\n"
+
+
+def badge(findings: list[Finding]) -> str:
+    """shields.io endpoint JSON summarising the findings."""
+    flagged = _flagged(findings)
+    color = ("red" if any(f.level == "error" for f in flagged)
+             else "yellow" if flagged else "brightgreen")
+    return json.dumps({"schemaVersion": 1, "label": "traceability",
+                       "message": count_summary(flagged, skip_zero=True) or "all clear", "color": color})
+
+
 def _annotate(f: Finding) -> str:
     kind = "error" if f.level == "error" else "warning" if f.level == "warning" else "notice"
     where = f" file={f.path}" if f.path else ""
@@ -248,8 +313,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--base", help="git ref to compare against for unbumped text changes")
     ap.add_argument("--report", type=Path, help="write Markdown status report here")
     ap.add_argument("--overdue", type=Path, help="write overdue-review checklist here")
+    ap.add_argument("--comment", type=Path, help="write a pull request comment comparing with --base here")
+    ap.add_argument("--badge", type=Path, help="write shields.io badge JSON here")
     ap.add_argument("--today", type=dt.date.fromisoformat, default=dt.date.today())
     args = ap.parse_args(argv)
+    if args.comment and not args.base:
+        ap.error("--comment needs --base")
 
     items, findings = load_items(args.root)
     base = git_base(items, args.base) if args.base else None
@@ -262,6 +331,13 @@ def main(argv: list[str] | None = None) -> int:
         args.report.write_text(render_report(items, findings, args.today), encoding="utf-8")
     if args.overdue:
         args.overdue.write_text(overdue_report(items, findings), encoding="utf-8")
+    if args.comment:
+        base_items, base_findings = load_items_at(args.root, args.base)
+        base_findings += check(base_items, args.today)
+        args.comment.write_text(comment_report(items, findings, base_items, base_findings, args.base),
+                                encoding="utf-8")
+    if args.badge:
+        args.badge.write_text(badge(findings) + "\n", encoding="utf-8")
     errors = sum(f.level == "error" for f in findings)
     print(f"{len(items)} items, {errors} errors, {len(findings) - errors} other findings")
     return 1 if errors else 0

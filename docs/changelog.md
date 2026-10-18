@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.2.4-demo — 2026-10-18
+
+### Doctrine
+
+- Corrected small inaccuracies on "How this doctrine is maintained" and the processes page, and added NZSAR and SOP to the glossary. ([#27](https://github.com/schmidtnz/imt-doctrine/pull/27), [Tobias Schmidt](https://github.com/schmidtnz))
+
+### Site and tooling
+
+- The PDF no longer repeats section numbers in headings or the version on its title page. ([#30](https://github.com/schmidtnz/imt-doctrine/pull/30), [Tobias Schmidt](https://github.com/schmidtnz))
+
+### Needs review
+
+- **CON-02** written against PRN-13 v1; PRN-13 is now v2
+
+Traceability at release: 1 warning, 1 stale, 1 overdue.
+
+Contributors: [Tobias Schmidt](https://github.com/schmidtnz)
+
 ## v0.2.3-demo — 2026-10-18
 
 ### Site and tooling

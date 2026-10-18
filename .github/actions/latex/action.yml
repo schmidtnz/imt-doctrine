@@ -1,5 +1,5 @@
 name: Install LaTeX
-description: TeX Live packages needed by `sphinx-build -M latexpdf` with xelatex, plus rsvg-convert for SVG figures.
+description: TeX Live packages needed by `sphinx-build -M latexpdf` with xelatex, plus rsvg-convert for SVG figures and mermaid-cli for diagrams.
 runs:
   using: composite
   steps:
@@ -9,3 +9,9 @@ runs:
         sudo apt-get install -y --no-install-recommends latexmk xindy texlive-xetex \
           texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended fonts-freefont-otf \
           librsvg2-bin
+    - name: Install mermaid-cli
+      shell: bash
+      run: |
+        npm install -g @mermaid-js/mermaid-cli@11.17.0
+        # Headless Chrome's sandbox needs user namespaces, which Ubuntu 24.04 blocks.
+        sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0

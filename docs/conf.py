@@ -51,6 +51,8 @@ extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.rsvgconver
               "docindex"]
 numfig = True
 numfig_format = {"figure": "Figure %s"}
+# Number figures straight through, as the HTML does; PDF chapters carry no numbers to prefix.
+numfig_secnum_depth = 0
 myst_enable_extensions = ["colon_fence", "deflist", "substitution", "tasklist"]
 myst_heading_anchors = 3
 myst_substitutions = {
@@ -94,10 +96,13 @@ latex_elements = {
     # The traceability tree nests principle → concept → guideline → process → form,
     # one level deeper than LaTeX's default limit of four bullet lists.
     "maxlistdepth": "10",
-    "preamble": _index_style + ((rf"\usepackage{{draftwatermark}}\SetWatermarkText{{{_mark}}}"
-                                 r"\SetWatermarkLightness{0.92}") if _mark else ""),
+    # Headings carry the draft's own numbers ("1.3 Scope", "PRN-01 …"), so LaTeX adds none.
+    "preamble": r"\setcounter{secnumdepth}{-1}" + _index_style + (
+        rf"\usepackage{{draftwatermark}}\SetWatermarkText{{{_mark}}}"
+        r"\SetWatermarkLightness{0.92}" if _mark else ""),
 }
 latex_documents = [
-    ("index", "imt-doctrine.tex", f"IMT Doctrine {release}",
+    # Sphinx prints "Release <release>" under the title and in page headers.
+    ("index", "imt-doctrine.tex", "IMT Doctrine",
      "Doctrine working group", "manual"),
 ]

@@ -86,12 +86,16 @@ def _watermark(release: str) -> str:
 
 
 _mark = _watermark(release)
+# Index in the text font and ragged right, with "(CIMS)" in titles kept upright.
+_index_style = (r"\renewcommand{\sphinxstyleindexentry}[1]{#1}"
+                r"\renewcommand{\sphinxstyleindexextra}[1]{ (#1)}"
+                r"\makeatletter\g@addto@macro\theindex{\raggedright}\makeatother")
 latex_elements = {
     # The traceability tree nests principle → concept → guideline → process → form,
     # one level deeper than LaTeX's default limit of four bullet lists.
     "maxlistdepth": "10",
-    "preamble": (rf"\usepackage{{draftwatermark}}\SetWatermarkText{{{_mark}}}"
-                 r"\SetWatermarkLightness{0.92}") if _mark else "",
+    "preamble": _index_style + ((rf"\usepackage{{draftwatermark}}\SetWatermarkText{{{_mark}}}"
+                                 r"\SetWatermarkLightness{0.92}") if _mark else ""),
 }
 latex_documents = [
     ("index", "imt-doctrine.tex", f"IMT Doctrine {release}",

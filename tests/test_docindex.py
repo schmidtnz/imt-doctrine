@@ -1,5 +1,6 @@
 """Builds a small site with the docindex extension and checks the index, glossary and menu."""
 import io
+import re
 import tempfile
 import textwrap
 import unittest
@@ -61,6 +62,10 @@ PAGES = {
         # Notes
 
         Lower case {term}`pod`.
+
+        | Step | Do |
+        |---|---|
+        | 1 | Run **{term}`MMISSI TD`** |
     """,
 }
 
@@ -107,6 +112,13 @@ class DocIndexTests(unittest.TestCase):
         self.assertNotIn("genindex", self.warnings["latex"])
         tex = next(self.out["latex"].glob("*.tex")).read_text(encoding="utf-8")
         self.assertIn(r"\index{MMISSI TD@\spxentry{MMISSI TD}!PRN\sphinxhyphen{}01", tex)
+
+    def test_term_in_a_table_is_indexed_before_it(self):
+        tex = next(self.out["latex"].glob("*.tex")).read_text(encoding="utf-8")
+        table = re.search(r"\\begin\{tabu.*?\\end\{tabu", tex, re.S).group(0)
+        self.assertIn("MMISSI TD", table)
+        self.assertNotIn(r"\index{", table)
+        self.assertIn(r"\index{MMISSI TD@\spxentry{MMISSI TD}!Notes", tex[:tex.index(table)])
 
     def test_term_written_in_other_case_warns(self):
         self.assertIn("index entry 'pod' should match the glossary: 'POD'", self.warnings["html"])

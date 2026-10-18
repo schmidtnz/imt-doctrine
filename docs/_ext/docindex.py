@@ -24,6 +24,18 @@ def _in_title(node) -> bool:
     return False
 
 
+def _block(node):
+    """The table round node, else its paragraph: LaTeX garbles index keys inside tables and bold text."""
+    found = None
+    while node is not None and not isinstance(node, nodes.section):
+        if isinstance(node, nodes.table):
+            return node
+        if found is None and isinstance(node, nodes.paragraph):
+            found = node
+        node = node.parent
+    return found
+
+
 class IndexEntries(SphinxTransform):
     """Index each item by ID, title and its `index` terms, and each glossary term at its first use on a page."""
 
@@ -54,7 +66,11 @@ class IndexEntries(SphinxTransform):
             term = ref["reftarget"]
             if term.lower() not in seen:
                 seen.add(term.lower())
-                ref.parent.insert(ref.parent.index(ref), self._nodes([f"{term}; {page}"]))
+                block = _block(ref)
+                if block is None:
+                    ref.parent.insert(ref.parent.index(ref), self._nodes([f"{term}; {page}"]))
+                else:
+                    block.parent.insert(block.parent.index(block), self._nodes([f"{term}; {page}"], inline=False))
 
     def _nodes(self, entries: list[str], inline: bool = True) -> list[nodes.Node]:
         tid = f"index-{self.env.new_serialno('index')}"

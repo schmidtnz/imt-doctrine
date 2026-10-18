@@ -6,6 +6,7 @@ version: 1
 requires_children: [concept]
 owner: doctrine-group
 last_reviewed: 2026-10-01
+index: [support agency]
 ---
 
 # PRN-03 Fostering partnerships and relationships

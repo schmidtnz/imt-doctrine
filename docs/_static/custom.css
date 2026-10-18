@@ -2,5 +2,7 @@
 .admonition.doctrace { border-left-color: var(--color-brand-primary); font-size: 0.9em; }
 .admonition.doctrace.stale { border-left-color: #c77700; }
 .admonition.placeholder { opacity: 0.8; }
+/* Pages that use a glossary term, listed under its definition. */
+.term-uses { font-size: var(--font-size--small); color: var(--color-foreground-secondary); }
 /* Logos are dark on transparent, so keep a light backing in dark mode. */
 img.logo { background: #fff; padding: 0.75rem; border-radius: 0.375rem; }

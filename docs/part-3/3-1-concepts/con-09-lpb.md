@@ -7,6 +7,7 @@ derives_from:
   PRN-08: 1
 owner: doctrine-group
 last_reviewed: 2026-10-01
+index: [subject category, ecoregion]
 ---
 
 # CON-09 Lost and missing person behaviour

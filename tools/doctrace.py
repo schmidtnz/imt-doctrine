@@ -39,6 +39,7 @@ class Item:
     owner: str | None = None
     last_reviewed: dt.date | None = None
     review_days: int = DEFAULT_REVIEW_DAYS
+    index: list[str] = field(default_factory=list)
     body: str = ""
 
 
@@ -85,6 +86,10 @@ def parse_item(path: Path, text: str) -> tuple[Item | None, list[Finding]]:
     if reviewed is not None and not isinstance(reviewed, dt.date):
         problems.append(Finding("error", "last_reviewed must be a YYYY-MM-DD date", iid, path))
         reviewed = None
+    index = meta.get("index") or []
+    if not isinstance(index, list) or not all(isinstance(t, str) for t in index):
+        problems.append(Finding("error", "index must be a list of terms", iid, path))
+        index = []
     item = Item(
         id=iid, type=str(meta["type"]), title=str(meta["title"]), path=path,
         version=int(meta.get("version", 1)),
@@ -92,7 +97,7 @@ def parse_item(path: Path, text: str) -> tuple[Item | None, list[Finding]]:
         requires_children=list(meta.get("requires_children") or []),
         owner=meta.get("owner"), last_reviewed=reviewed,
         review_days=int(meta.get("review_days", DEFAULT_REVIEW_DAYS)),
-        body=body,
+        index=index, body=body,
     )
     return item, problems
 

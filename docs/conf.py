@@ -47,7 +47,8 @@ release, commit = _release()
 version = release
 
 # rsvgconverter turns SVG figures into PDF for the LaTeX build (needs rsvg-convert).
-extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.rsvgconverter", "traceability"]
+extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.rsvgconverter", "traceability",
+              "docindex"]
 numfig = True
 numfig_format = {"figure": "Figure %s"}
 myst_enable_extensions = ["colon_fence", "deflist", "substitution", "tasklist"]

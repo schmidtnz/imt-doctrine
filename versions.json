@@ -1,6 +1,10 @@
 {
-  "latest": "v0.2.2-demo",
+  "latest": "v0.2.3-demo",
   "versions": [
+    {
+      "version": "v0.2.3-demo",
+      "channel": "demo"
+    },
     {
       "version": "v0.2.2-demo",
       "channel": "demo"

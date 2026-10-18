@@ -9,6 +9,7 @@ derives_from:
   PRN-14: 1
 owner: doctrine-group
 last_reviewed: 2026-10-01
+index: [double-loop learning, IMT development pathway]
 ---
 
 # CON-01 Hierarchical framework of the doctrine

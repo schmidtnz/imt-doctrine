@@ -27,6 +27,7 @@ planned/index
 forms/index
 figures/index
 glossary
+Index <genindex>
 status/traceability
 how-this-works
 changelog

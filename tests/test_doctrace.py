@@ -88,6 +88,15 @@ class ParseTests(Base):
         _, findings = self.run_check()
         self.assertTrue(any("derives_from must map" in f.message for f in findings))
 
+    def test_index_terms(self):
+        write(self.root, "p.md", PRN + "    index: [MMISSI TD, search urgency]\n")
+        items, findings = self.run_check()
+        self.assertEqual(items["PRN-01"].index, ["MMISSI TD", "search urgency"])
+        self.assertEqual(findings, [])
+        write(self.root, "p.md", PRN + "    index: MMISSI TD\n")
+        _, findings = self.run_check()
+        self.assertTrue(any("index must be a list" in f.message for f in findings))
+
     def test_duplicate_id(self):
         write(self.root, "a.md", PRN)
         write(self.root, "b.md", PRN)

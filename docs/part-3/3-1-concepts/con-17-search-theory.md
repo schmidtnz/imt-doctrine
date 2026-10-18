@@ -8,6 +8,7 @@ derives_from:
   PRN-11: 1
 owner: doctrine-group
 last_reviewed: 2026-10-01
+index: [closed search area, segments]
 ---
 
 # CON-17 Search theory: POA × POD = POS

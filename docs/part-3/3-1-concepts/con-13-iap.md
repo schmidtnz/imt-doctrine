@@ -8,6 +8,7 @@ derives_from:
   PRN-05: 1
 owner: doctrine-group
 last_reviewed: 2026-10-01
+index: [SMART, operational period]
 ---
 
 # CON-13 Incident action plans

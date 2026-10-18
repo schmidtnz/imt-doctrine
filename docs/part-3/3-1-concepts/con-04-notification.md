@@ -8,6 +8,7 @@ derives_from:
   PRN-09: 1
 owner: doctrine-group
 last_reviewed: 2026-10-01
+index: [incident controller]
 ---
 
 # CON-04 Notification and awareness

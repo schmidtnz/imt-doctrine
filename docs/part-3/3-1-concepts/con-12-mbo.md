@@ -7,6 +7,7 @@ derives_from:
   PRN-11: 1
 owner: doctrine-group
 last_reviewed: 2026-10-01
+index: [SMART]
 ---
 
 # CON-12 Management by objectives

@@ -8,6 +8,7 @@ derives_from:
   CON-17: 1
 owner: doctrine-group
 last_reviewed: 2026-10-01
+index: [limited continuous search]
 ---
 
 # GDL-06 Suspension

@@ -47,7 +47,8 @@ release, commit = _release()
 version = release
 
 # rsvgconverter turns SVG figures into PDF for the LaTeX build (needs rsvg-convert).
-extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.rsvgconverter", "traceability"]
+extensions = ["myst_parser", "sphinx.ext.githubpages", "sphinxcontrib.rsvgconverter", "traceability",
+              "docindex"]
 numfig = True
 numfig_format = {"figure": "Figure %s"}
 # Number figures straight through, as the HTML does; PDF chapters carry no numbers to prefix.
@@ -87,12 +88,16 @@ def _watermark(release: str) -> str:
 
 
 _mark = _watermark(release)
+# Index in the text font and ragged right, with "(CIMS)" in titles kept upright.
+_index_style = (r"\renewcommand{\sphinxstyleindexentry}[1]{#1}"
+                r"\renewcommand{\sphinxstyleindexextra}[1]{ (#1)}"
+                r"\makeatletter\g@addto@macro\theindex{\raggedright}\makeatother")
 latex_elements = {
     # The traceability tree nests principle → concept → guideline → process → form,
     # one level deeper than LaTeX's default limit of four bullet lists.
     "maxlistdepth": "10",
     # Headings carry the draft's own numbers ("1.3 Scope", "PRN-01 …"), so LaTeX adds none.
-    "preamble": r"\setcounter{secnumdepth}{-1}" + (
+    "preamble": r"\setcounter{secnumdepth}{-1}" + _index_style + (
         rf"\usepackage{{draftwatermark}}\SetWatermarkText{{{_mark}}}"
         r"\SetWatermarkLightness{0.92}" if _mark else ""),
 }

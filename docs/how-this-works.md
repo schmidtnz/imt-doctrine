@@ -66,7 +66,7 @@ Each type of item has its own folder, ID prefix and allowed parents:
 
 4. Choose **Commit changes** and propose the change. GitHub opens a pull request, the checks run and a preview of the site is built.
 
-The new page appears in its folder's contents without further edits. Two optional fields: `requires_children: [form]` flags the item until a form derives from it, and `review_days` changes the 365-day review interval.
+The new page appears in its folder's contents and the index without further edits. Three optional fields: `requires_children: [form]` flags the item until a form derives from it, `review_days` changes the 365-day review interval, and `index: [incident controller]` adds index entries for topics the title doesn't name.
 
 ## Checks on every change
 
@@ -85,7 +85,7 @@ Each pull request also gets a **Traceability** comment listing the findings it a
 ## Say it once
 
 - Repeated text, such as the {term}`POD` scale, lives in one snippet file and is included on every page that needs it (four pages here).
-- Acronyms are defined once in the {doc}`glossary`.
+- Acronyms are defined once in the {doc}`glossary`. Pages link to them with `` {term}`POD` ``, so the glossary and the {ref}`genindex` list every page that uses each one.
 - The organisation name comes from one setting, so it reads "{{ org }}" everywhere.
 
 ## What the demo content shows

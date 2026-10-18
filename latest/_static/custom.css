@@ -4,7 +4,3 @@
 .admonition.placeholder { opacity: 0.8; }
 /* Logos are dark on transparent, so keep a light backing in dark mode. */
 img.logo { background: #fff; padding: 0.75rem; border-radius: 0.375rem; }
-/* Version menu in the sidebar, filled in by versions.js. */
-.sidebar-versions { padding: 0 var(--sidebar-item-spacing-horizontal) var(--sidebar-item-spacing-vertical); font-size: var(--sidebar-item-font-size); }
-.sidebar-versions label { display: block; color: var(--color-foreground-secondary); margin-bottom: 0.25rem; }
-.sidebar-versions select { width: 100%; padding: 0.25rem; color: var(--color-foreground-primary); background: var(--color-background-primary); border: 1px solid var(--color-background-border); border-radius: 0.25rem; }

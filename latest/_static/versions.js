@@ -1,4 +1,5 @@
-// Version menu and banner, from versions.json at the site root (one level above this build).
+// Version menu (under the site title) and banner, from versions.json at the site root, one level
+// above this build. Builds from before the menu existed get this file added by the backfill.
 (() => {
   const buildRoot = new URL(document.documentElement.dataset.content_root || "./", location.href);
   const siteRoot = new URL("../", buildRoot);
@@ -13,16 +14,20 @@
       ["next", "next (working draft)"],
       ...names.map((n) => [n, n]),
     ];
-    if (!options.some(([folder]) => folder === here)) return; // e.g. a pull request preview
+    const brand = document.querySelector(".sidebar-brand");
+    if (!brand || !options.some(([folder]) => folder === here)) return; // e.g. a pull request preview
 
-    const select = document.getElementById("version-select");
+    const menu = document.createElement("div");
+    menu.className = "sidebar-versions";
+    menu.innerHTML = '<label for="version-select">Version</label><select id="version-select"></select>';
+    const select = menu.querySelector("select");
     for (const [folder, label] of options) {
       select.add(new Option(label, folder, false, folder === here));
     }
     select.addEventListener("change", () => {
       location.href = new URL(page + location.hash, new URL(select.value + "/", siteRoot)).href;
     });
-    document.getElementById("version-switcher").hidden = false;
+    brand.after(menu);
 
     const link = latest && `<a href="${new URL("latest/", siteRoot).href}">${latest}</a>`;
     let text = "";
@@ -43,7 +48,8 @@
     }
   };
 
-  fetch(new URL("versions.json", siteRoot))
+  // Pages caches files for 10 minutes; revalidate so a new release shows at once.
+  fetch(new URL("versions.json", siteRoot), { cache: "no-cache" })
     .then((r) => (r.ok ? r.json() : null))
     .then((data) => data && show(data))
     .catch(() => {});

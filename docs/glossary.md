@@ -57,6 +57,9 @@ MOST
 MPR
   Missing Person Report.
 
+NZSAR
+  New Zealand Search and Rescue. The NZSAR Council gives national strategic governance of the SAR system.
+
 OSC
   On-Scene Coordinator.
 
@@ -98,4 +101,7 @@ SMART
 
 SMS
   Safety Management System.
+
+SOP
+  Standard Operating Procedure.
 ```

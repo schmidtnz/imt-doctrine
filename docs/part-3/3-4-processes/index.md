@@ -1,6 +1,6 @@
 # 3.4 Processes and procedures
 
-The established sequences of action that put the guidelines into practice. Each process derives from the concept and guideline it implements, so a change to either flags the process for review.
+The established sequences of action that put the guidelines into practice. Each process derives from the concepts and guidelines it implements, so a change to any of them flags the process for review.
 
 A land search runs through four stages: initial response, extended search planning, rescue, and operational conclusion (demobilisation, handovers, debriefs and, if needed, suspension).
 

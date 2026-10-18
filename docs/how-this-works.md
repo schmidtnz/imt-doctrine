@@ -18,6 +18,7 @@ Principles, concepts, guidelines, processes and forms are **items**. Each item p
 id: GDL-05
 type: guideline
 title: Extended search planning phase
+version: 1
 derives_from:      # parent ID: parent version this was written against
   CON-16: 1
   CON-17: 1
@@ -83,7 +84,7 @@ Each pull request also gets a **Traceability** comment listing the findings it a
 
 ## Say it once
 
-- Repeated text, such as the {term}`POD` scale, lives in one snippet file and is included on every page that needs it (five pages here).
+- Repeated text, such as the {term}`POD` scale, lives in one snippet file and is included on every page that needs it (four pages here).
 - Acronyms are defined once in the {doc}`glossary`.
 - The organisation name comes from one setting, so it reads "{{ org }}" everywhere.
 

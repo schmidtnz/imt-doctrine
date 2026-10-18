@@ -1,6 +1,0 @@
-/* Traceability box shown at the top of each doctrine item. */
-.admonition.doctrace { border-left-color: var(--color-brand-primary); font-size: 0.9em; }
-.admonition.doctrace.stale { border-left-color: #c77700; }
-.admonition.placeholder { opacity: 0.8; }
-/* Logos are dark on transparent, so keep a light backing in dark mode. */
-img.logo { background: #fff; padding: 0.75rem; border-radius: 0.375rem; }

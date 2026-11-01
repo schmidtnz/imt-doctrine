@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="236" viewBox="0 0 800 236" role="img" aria-labelledby="title desc">
+  <title id="title">Phases of a land search and rescue operation</title>
+  <desc id="desc">Initial response leads into extended search planning once the initial response objectives are completed. Rescue runs underneath both, because it can start whenever the subject is found, or stand alone.</desc>
+  <style>
+    text { font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, FreeSans, sans-serif; fill: #1f2933; }
+    .name { font-size: 17px; font-weight: 600; }
+    .note { font-size: 13.5px; fill: #52606d; }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#52606d"/>
+    </marker>
+  </defs>
+  <rect width="800" height="236" rx="12" fill="#ffffff"/>
+
+  <rect x="20" y="24" width="340" height="84" rx="10" fill="#fff0e6" stroke="#d9480f" stroke-width="1.5"/>
+  <text class="name" x="40" y="56">1  Initial response</text>
+  <text class="note" x="40" y="79">Pre-determined actions: lost person</text>
+  <text class="note" x="40" y="97">behaviour and the Bike Wheel</text>
+
+  <line x1="361" y1="66" x2="379" y2="66" stroke="#52606d" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+  <rect x="380" y="24" width="400" height="84" rx="10" fill="#e7f1fb" stroke="#1864ab" stroke-width="1.5"/>
+  <text class="name" x="400" y="56">2  Extended search planning</text>
+  <text class="note" x="400" y="79">This subject, not the statistical one: scenarios,</text>
+  <text class="note" x="400" y="97">consolidated intelligence, methodical searching</text>
+
+  <line x1="370" y1="112" x2="370" y2="122" stroke="#52606d" stroke-width="1.5"/>
+  <text class="note" x="370" y="138" text-anchor="middle">Move on as the initial response objectives are completed</text>
+
+  <rect x="20" y="154" width="760" height="60" rx="10" fill="#f1f3f5" stroke="#52606d" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text class="name" x="40" y="180">3  Rescue (known location)</text>
+  <text class="note" x="40" y="201">Starts whenever the subject is found, or stands alone, for example a beacon activation</text>
+</svg>

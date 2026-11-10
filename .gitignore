@@ -1,5 +1,24 @@
 docs/_build/
 docs/status/traceability.md
+
+# Python build and cache
 __pycache__/
+*.py[cod]
 .venv/
-*.pyc
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDEs and editors
+.idea/
+.claude/
+.vscode/
+*.swp
+*~
+
+# Operating System files
+.DS_Store
+Thumbs.db

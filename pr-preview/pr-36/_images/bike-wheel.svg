@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800" height="490" viewBox="0 0 800 490" role="img" aria-labelledby="title desc">
+  <title id="title">The Bike Wheel model</title>
+  <desc id="desc">A bicycle wheel whose parts stand for initial response objectives. Hub: process the planning point and search close in. Spokes: search the intended route and travel corridors. Reflectors: check hazards, attractants and areas with SAR history. Rim, with rocks at corridor ends: contain the area at natural containment points. Stick in the wheel: search areas suggested by early scenarios. Frame: build the profile, establish comms and prepare for handover.</desc>
+  <style>
+    text { font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, FreeSans, sans-serif; fill: #1f2933; }
+    .name { font-size: 16px; font-weight: 600; }
+    .note { font-size: 13.5px; fill: #52606d; }
+    .leader { stroke: #9aa5b1; stroke-width: 1.25; fill: none; }
+  </style>
+  <defs>
+    <polygon id="rock" points="-11,4 -8,-7 1,-11 10,-6 12,5 3,10 -6,9" fill="#7b8794" stroke="#3e4c59" stroke-width="1"/>
+    <rect id="reflector" x="-9" y="-5" width="18" height="10" rx="2" fill="#f59f00" stroke="#b35c00" stroke-width="1"/>
+  </defs>
+  <rect width="800" height="490" rx="12" fill="#ffffff"/>
+
+  <!-- Rim -->
+  <circle cx="250" cy="255" r="175" fill="#fafbfc" stroke="#1f2933" stroke-width="9"/>
+  <circle cx="250" cy="255" r="165" fill="none" stroke="#9aa5b1" stroke-width="1.5"/>
+
+  <!-- Spokes -->
+  <g stroke="#52606d" stroke-width="3" stroke-linecap="round">
+    <line x1="270" y1="255" x2="415" y2="255"/>
+    <line x1="264.1" y1="269.1" x2="366.7" y2="371.7"/>
+    <line x1="250" y1="275" x2="250" y2="420"/>
+    <line x1="235.9" y1="269.1" x2="133.3" y2="371.7"/>
+    <line x1="230" y1="255" x2="85" y2="255"/>
+    <line x1="235.9" y1="240.9" x2="133.3" y2="138.3"/>
+    <line x1="250" y1="235" x2="250" y2="90"/>
+    <line x1="264.1" y1="240.9" x2="366.7" y2="138.3"/>
+  </g>
+
+  <!-- Reflectors on three spokes -->
+  <use xlink:href="#reflector" href="#reflector" transform="translate(320.7 184.3) rotate(-45)"/>
+  <use xlink:href="#reflector" href="#reflector" transform="translate(179.3 325.7) rotate(-45)"/>
+  <use xlink:href="#reflector" href="#reflector" transform="translate(250 355) rotate(90)"/>
+
+  <!-- Rocks where corridors meet the rim -->
+  <use xlink:href="#rock" href="#rock" transform="translate(425 255)"/>
+  <use xlink:href="#rock" href="#rock" transform="translate(373.7 378.7)"/>
+  <use xlink:href="#rock" href="#rock" transform="translate(250 430)"/>
+  <use xlink:href="#rock" href="#rock" transform="translate(126.3 378.7)"/>
+  <use xlink:href="#rock" href="#rock" transform="translate(75 255)"/>
+  <use xlink:href="#rock" href="#rock" transform="translate(126.3 131.3)"/>
+  <use xlink:href="#rock" href="#rock" transform="translate(250 80)"/>
+  <use xlink:href="#rock" href="#rock" transform="translate(373.7 131.3)"/>
+
+  <!-- Frame (fork) -->
+  <line x1="250" y1="255" x2="345" y2="30" stroke="#3e4c59" stroke-width="10" stroke-linecap="round"/>
+  <line x1="322" y1="30" x2="368" y2="30" stroke="#3e4c59" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Stick in the wheel -->
+  <line x1="285" y1="335" x2="346" y2="470" stroke="#8a5a3b" stroke-width="7" stroke-linecap="round"/>
+  <line x1="327" y1="428" x2="350" y2="414" stroke="#8a5a3b" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Hub -->
+  <circle cx="250" cy="255" r="20" fill="#d9480f" stroke="#1f2933" stroke-width="2"/>
+  <circle cx="250" cy="255" r="6" fill="#ffffff"/>
+
+  <!-- Leaders -->
+  <g class="leader">
+    <path d="M 352 36 L 494 43"/>
+    <path d="M 384 127 L 494 115"/>
+    <path d="M 330 182 L 494 187"/>
+    <path d="M 385 255 L 494 259"/>
+    <path d="M 270 262 L 494 331"/>
+    <path d="M 352 462 L 494 403"/>
+  </g>
+  <g fill="#1f2933">
+    <circle cx="352" cy="36" r="3"/>
+    <circle cx="384" cy="127" r="3"/>
+    <circle cx="330" cy="182" r="3"/>
+    <circle cx="385" cy="255" r="3"/>
+    <circle cx="270" cy="262" r="3"/>
+    <circle cx="352" cy="462" r="3"/>
+  </g>
+
+  <!-- Labels -->
+  <text class="name" x="500" y="48">Frame</text>
+  <text class="note" x="500" y="67">Build the profile, establish</text>
+  <text class="note" x="500" y="85">comms, prepare for handover</text>
+
+  <text class="name" x="500" y="120">Rim, with rocks</text>
+  <text class="note" x="500" y="139">Contain the area at natural</text>
+  <text class="note" x="500" y="157">containment points</text>
+
+  <text class="name" x="500" y="192">Reflectors</text>
+  <text class="note" x="500" y="211">Check hazards, attractants</text>
+  <text class="note" x="500" y="229">and areas with SAR history</text>
+
+  <text class="name" x="500" y="264">Spokes</text>
+  <text class="note" x="500" y="283">Search the intended route</text>
+  <text class="note" x="500" y="301">and travel corridors</text>
+
+  <text class="name" x="500" y="336">Hub</text>
+  <text class="note" x="500" y="355">Process the planning point</text>
+  <text class="note" x="500" y="373">and search close in</text>
+
+  <text class="name" x="500" y="408">Stick in the wheel</text>
+  <text class="note" x="500" y="427">Search areas suggested by</text>
+  <text class="note" x="500" y="445">early scenarios</text>
+</svg>
